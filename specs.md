@@ -1,0 +1,33 @@
+### 需求实现
+1. 注册/登录（暂不实现手机号码登录）
+2. 首页 Post
+3. 标签分类
+4. 搜索
+5. 点赞
+6. 收藏
+7. 评论
+8. 用户（关注/个人设置）
+9. 分享（热门/最新）
+10. 首页 Feed
+
+---
+
+### Stack
+1. Flask 及相关扩展
+2. SQLAlchemy
+3. Bootstrap
+4. jQuery
+5. MySQL
+6. Redis
+7. Elasticsearch
+
+---
+
+### Models
+1. User
+2. Post
+3. Tag
+4. Like
+5. Collect
+6. Comment
+7. Contact (关注关系)
