@@ -17,6 +17,7 @@ roles_users = db.Table(
 
 
 class BranSQLAlchemyUserDatastore(SQLAlchemyUserDatastore):
+    """Inherited meths: `get_user`, `_is_numeric`, `find_user`, `find_role`."""
 
     def get_user_name(self, identifier):
         return self._get_user(identifier, 'name')

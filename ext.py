@@ -4,16 +4,17 @@ import functools
 import hashlib
 from datetime import datetime
 
-from dogpile.cache.region import make_region
-from dogpile.cache.api import NO_VALUE
-
 from flask import abort
 
 from flask_sqlalchemy import BaseQuery, Model, DefaultMeta, SQLAlchemy, _QueryProperty
+
 from sqlalchemy import Column, Integer, DateTime, inspect, event
 from sqlalchemy.ext.declarative import declared_attr, DeclarativeMeta, declarative_base
 from sqlalchemy.orm.attributes import get_history
 from sqlalchemy.orm.interfaces import MapperOption
+
+from dogpile.cache.region import make_region
+from dogpile.cache.api import NO_VALUE
 
 from flask_mail import Mail
 from flask_security import Security
@@ -37,6 +38,7 @@ def md5_key_mangler(key):
 
 
 def memoize(obj):
+    """Used to cache generated various keys/attrs/..., so avoid repeatedly generating."""
     cache = obj.cache = {}
 
     @functools.wraps(obj)
@@ -48,14 +50,11 @@ def memoize(obj):
     return memoizer
 
 
-regions = dict(
-    default = make_region(key_mangler=md5_key_mangler).configure(
-        'dogpile.cache.redis',
-        arguments={
-            'url': REDIS_URL,
-        }
-    )
-)
+# `make_region` is a passthrough to `CacheRegion`; it will instantiate a new `CacheRegion`.
+regions = dict(default = make_region(key_mangler=md5_key_mangler).configure(
+    'dogpile.cache.redis',
+    arguments={'url': REDIS_URL}
+))
 
 
 """New concepts are introduced to allow the usage of Dogpile caching with SQLAlchemy, as below:
@@ -302,7 +301,7 @@ class Cache(object):
 
 class BindDBPropertyMixin(object):
     def __init__(cls, name, bases, d):
-        super(BindDBPropertyMixin, cls).__init__(name, bases, d)
+        super(BindDBPropertyMixin, cls).__init__(name, bases, d)    # 元编程中 (cls, name, bases, attrs)
         db_columns = []
         for k, v in d.items():
             if isinstance(v, PropsItem):
@@ -313,7 +312,8 @@ class BindDBPropertyMixin(object):
 class CombinedMeta(BindDBPropertyMixin, DefaultMeta):
     pass
 
-"""`Model` inherited from flask-sqlalchemy, has convenience property to query the database for instances of this model.
+
+"""`Model`, inherited from flask-sqlalchemy, has convenience property to query the database for instances of this model.
 """
 class BaseModel(PropsMixin, Model):
     cache_label = "default"

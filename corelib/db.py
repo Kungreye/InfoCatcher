@@ -4,7 +4,7 @@ import copy
 import json
 from datetime import datetime
 
-from walrus import Database as _Database
+from walrus import Database as _Database    # Redis-py client with some extras
 from sqlalchemy.ext.serializer import loads, dumps
 
 from config import REDIS_URL
@@ -28,7 +28,7 @@ class PropsMixin(object):
 
     @property
     def _props_name(self):
-        return '__%s/props_cached' % self.get_uuid()
+        return '__%s/props_cached' % self.get_uuid()    # self.get_uuid():  /bran/{0.__class__.__name__}/{0.id}'.format(self)
 
     @property
     def _props_db_key(self):
@@ -90,6 +90,7 @@ class PropsMixin(object):
 
 
 class PropsItem(object):
+    """via descriptor"""
 
     def __init__(self, name, default=None, output_filter=None, pre_set=None):
         self.name = name
@@ -101,7 +102,7 @@ class PropsItem(object):
         r = obj.get_props_item(self.name, None)
         if r is None:
             return copy.deepcopy(self.default)
-        elif self.output_filer:
+        elif self.output_filter:
             return self.output_filter(r)
         else:
             return r
@@ -121,7 +122,15 @@ date_outputfilter = lambda v: datetime.strptime(
     v, '%Y-%m-%d').date() if v else None
 
 
+class DatetimePropsItem(PropsItem):
+
+    def __init__(self, name, default=None):
+        super(DatetimePropsItem, self).__init__(
+            name, default, datetime_outputfilter)
+
+
 class DatePropsItem(PropsItem):
 
     def __init__(self, name, default=None):
-        super(DatePropsItem, self).__init__(name, default, date_outputfilter)
+        super(DatePropsItem, self).__init__(
+            name, default, date_outputfilter)
