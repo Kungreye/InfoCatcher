@@ -6,7 +6,23 @@ import random
 import struct
 import threading
 import time
+from sqlalchemy.ext.hybrid import hybrid_property
 
+_missing = object()
+
+
+class cached_hybrid_property(hybrid_property):
+    """hybrid_property: A decorator which allows definition of a Python descriptor with both instance-level and class-level behavior."""
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self.expr(owner)
+        else:
+            name = self.fget.__name__
+            value = instance.__dict__.get(name, _missing)
+            if value is _missing:
+                value = self.fget(instance)
+                instance.__dict__[name] = value
+            return value
 
 
 class ObjectId:

@@ -10,7 +10,7 @@ from functools import wraps
 from sqlalchemy.ext.serializer import loads, dumps
 
 from corelib.db import rdb
-from corelib.utils import Emtpy
+from corelib.utils import Empty
 
 
 __formatters = {}

@@ -1,0 +1,10 @@
+# _*_ coding: utf-8 _*_
+
+ONE_MINUTE = 60
+ONE_HOUR = ONE_MINUTE * 60
+ONE_DAY = ONE_HOUR * 24
+
+K_POST = 1001
+K_COMMENT = 1002
+
+COMMENT_PER_PAGE = 10
