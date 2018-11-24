@@ -5,6 +5,9 @@ from ext import db
 from models.mixin import BaseMixin
 
 
+MC_KEY_CONTACT_N = 'contact_n:%s:%s'
+
+
 class Contact(BaseMixin, db.Model):
     __tablename__ = 'contacts'
     to_id = db.Column(db.Integer)
@@ -24,4 +27,3 @@ class userFollowState(BaseMixin, db.Model):
     __table_args_ = {
         'mysql_charset': 'utf8'
     }
-    
