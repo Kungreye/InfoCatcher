@@ -5,6 +5,7 @@ Derived from practice of Memcached.
 """
 
 import re
+import inspect
 from functools import wraps
 
 from sqlalchemy.ext.serializer import loads, dumps
@@ -29,7 +30,7 @@ def formatter(text):
     >>> class Obj: id = 3
     >>> format('{obj.id} {o.id}', Obj(), obj=Obj())
     '3 3'
-    >>> Class Obj: id = 3
+    >>> class Obj: id = 3
     >>> format('{obj.id.__class__} {obj.id.__class__.__class__} {0.id} {1}', \
     >>> Obj(), 6, obj=Obj())
     "<type 'int'> <type 'type'> 3 6"
@@ -57,3 +58,120 @@ def format(text, *a, **kw):
         __formatters[text] = f
     return f(*a, **kw)
 
+
+def gen_key(key_pattern, arg_names, defaults, *a, **kw):
+    return gen_key_factory(key_pattern, arg_names, defaults)(*a, **kw)
+
+
+def gen_key_factory(key_pattern, arg_names, defaults):
+    args = dict(zip(arg_names[-len(defaults):], defaults)) if defaults else {}
+    if callable(key_pattern):
+        names = inspect.getfullargspec(key_pattern)[0]
+
+    def gen_key(*a, **kw):
+        aa = args.copy()    # shallow copy
+        aa.update(zip(arg_names, a))
+        aa.update(kw)
+        if callable(key_pattern):
+            key = key_pattern(*[aa[n] for n in names])
+        else:
+            key = format(key_pattern, *[aa[n] for n in arg_names], **aa)
+        return key and key.replace(' ', '_'), aa
+    return gen_key
+
+
+def cache(key_pattern, expire=None):
+    def deco(f):
+        arg_names, varargs, varkw, defaults = inspect.getfullargspec(f)[:4]
+        if varargs or varkw:
+            raise Exception("not support varargs or varkw")
+        gen_key = gen_key_factory(key_pattern, arg_names, defaults)
+
+        @wraps(f)
+        def _(*a, **kw):
+            key, args = gen_key(*a, **kw)
+            if not key:
+                return f(*a, **kw)
+            force = kw.pop('force', False)
+            r = rdb.get(key) if not force else None
+
+            if r is None:
+                r = f(*a, **kw)
+                if r is not None:
+                    r = dumps(r)
+                    rdb.set(key, r, expire)
+
+            r = loads(r)
+            if isinstance(r, Empty):
+                r = None
+            return r
+        _.original_function = f
+        return _
+    return deco
+
+
+def pcache(key_pattern, count=300, expire=None):
+    def deco(f):
+        arg_names, varargs, varkw, defaults = inspect.getfullargspec(f)[:4]
+        if varargs or varkw:
+            raise Exception("not support varargs or varkw")
+        if not ('limit' in arg_names):
+            raise Exception("function must have 'limit' in args")
+        gen_key = gen_key_factory(key_pattern, arg_names, defaults)
+
+        @wraps(f)
+        def _(*a, **kw):
+            key, args = gen_key(*a, **kw)
+            start = args.pop('start', 0)
+            limit = args.pop('limit')
+            start = int(start)
+            limit = int(limit)
+            if (not key) or (limit is None) or (start + limit > count):
+                return f(*a, **kw)
+
+            force = kw.pop('force', False)
+            r = rdb.get(key) if not force else None
+
+            if r is None:
+                r = f(limit=count, **args)
+                r = dumps(r)
+                rdb.set(key, r, expire)
+
+            r = loads(r)
+            return r[start:start + limit]
+        _.original_function = f
+        return _
+    return deco
+
+
+def pcache2(key_pattern, count=300, expire=None):
+    def deco(f):
+        arg_names, varargs, varkw, defaults = inspect.getfullargspec(f)[:4]
+        if varargs or varkw:
+            raise Exception('not support varargs or varkw')
+        if not ('limit' in arg_names):
+            raise Exception("function must have 'limit' in args'")
+        gen_key = gen_key_factory(key_pattern, arg_names, defaults)
+
+        @wraps(f)
+        def _(*a, **kw):
+            key, args = gen_key(*a, **kw)
+            start = args.pop('start', 0)
+            limit = args.pop('limit')
+            if (not key) or (limit is None) or (start + limit > count):
+                return f(*a, **kw)
+
+            n = 0
+            force = kw.pop('force', False)
+            d = rdb.get(key) if not force else None
+            if d is None:
+                n, r = f(limit=count, **args)
+                r = dumps(n, r)
+                rdb.set(key, (n, r), expire)
+            else:
+                n, r = loads(r)
+                r = loads(r)
+            return (n, r[start:start + limit])
+        _.original_function = f
+        return _
+    return deco
