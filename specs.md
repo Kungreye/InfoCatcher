@@ -1,4 +1,4 @@
-### 需求实现
+### 项目需求
 1. 注册/登录（暂不实现手机号码登录）
 2. 首页 Post
 3. 标签分类
@@ -23,11 +23,15 @@
 
 ---
 
-### Models
+### Models 设计
 1. User
-2. Post
-3. Tag
-4. Like
-5. Collect
-6. Comment
-7. Contact (关注关系)
+2. Contact (关注关系)
+3. Post
+4. Tag
+5. Comment
+6. Like
+7. Collect
+
+---
+
+### 搭建 Flask 应用
