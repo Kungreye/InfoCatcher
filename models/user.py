@@ -15,7 +15,7 @@ from models.mixin import BaseMixin
 roles_users = db.Table(
     'roles_users',
     db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
-    db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+    db.Column('role_id', db.Integer(), db.ForeignKey('roles.id')))
 
 
 class BranSQLAlchemyUserDatastore(SQLAlchemyUserDatastore):
@@ -41,6 +41,7 @@ class BranSQLAlchemyUserDatastore(SQLAlchemyUserDatastore):
 
 
 class Role(db.Model, RoleMixin):
+    __tablename__ = 'roles'
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(191))
 
