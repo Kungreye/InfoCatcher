@@ -37,7 +37,7 @@ class LikeItem(BaseMixin, db.Model):
 
 class LikeMixin(object):
     def like(self, user_id):
-        item = LikeItem.get_by_target(user_id, self.id, self.kink)
+        item = LikeItem.get_by_target(user_id, self.id, self.kind)
         if item:
             return False
         LikeItem.create(user_id=user_id, target_id=self.id,
