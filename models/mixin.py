@@ -29,10 +29,10 @@ class BaseMixin:
                 session.commit()
                 cls.update_db_props(obj, props)
                 return False, obj
-            obj = cls(**kwargs)
-            obj.save()
-            cls.update_db_props(obj, props)
-            return True, obj
+        obj = cls(**kwargs)
+        obj.save()
+        cls.update_db_props(obj, props)
+        return True, obj
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
