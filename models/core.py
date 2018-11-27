@@ -23,7 +23,7 @@ class Post(BaseMixin, CommentMixin, db.Model):
     title = db.Column(db.String(128), default='')
     orig_url = db.Column(db.String(255), default='')
     can_comment = db.Column(db.Boolean, default=True)
-    content = PropsItem('content', '')
+    content = PropsItem('content', '')  # key-value db field, since `content` is only stored, normally not need search/filter/query...
     kind = K_POST
 
     __table_args__ = (
@@ -40,11 +40,11 @@ class Post(BaseMixin, CommentMixin, db.Model):
 
     @classmethod
     def get(cls, identifier):
-        post = cls.cache.filter(slug=identifier).first()
+        post = cls.cache.filter(slug=identifier).first()    # not default `get` in BaseModel
         if post:
             return post
-        if is_numeric:
-            return cls.cache.get(identifier)
+        if is_numeric(identifier):
+            return cls.cache.get(identifier)    # get post by means of a title
         return cls.cache.filter(title=identifier).first()
 
     @property
@@ -65,6 +65,7 @@ class Post(BaseMixin, CommentMixin, db.Model):
 
     @classmethod
     def create_or_update(cls, **kwargs):
+        # not default `create_or_update' in BaseMixin
         tags = kwargs.pop('tags', [])
         created, obj = super(Post, cls).create_or_update(**kwargs)
         if tags:

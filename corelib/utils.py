@@ -30,7 +30,7 @@ class ObjectId:
     _inc_lock = threading.Lock()
 
 
-# MongoDB -> bson -> object_id
+# MongoDB -> bson -> object_id  (PyMongo)
 def generate_id():
     oid = struct.pack(">i", int(time.time()))
     oid += struct.pack(">H", os.getpid() % 0xFFFF)

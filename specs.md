@@ -12,7 +12,7 @@
 
 ---
 
-### Stack
+### 技术选型
 1. Flask 及相关扩展
 2. SQLAlchemy
 3. Bootstrap

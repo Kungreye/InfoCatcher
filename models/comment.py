@@ -20,8 +20,8 @@ class Comment(BaseMixin, LikeMixin, db.Model):
     user_id = db.Column(db.Integer)
     target_id = db.Column(db.Integer)
     target_kind = db.Column(db.Integer)
-    ref_id = db.Column(db.Integer, default=0)
-    content = PropsItem('content', '')
+    ref_id = db.Column(db.Integer, default=0)   # ?
+    content = PropsItem('content', '')      # this field is stored in key-value db
     kind = K_COMMENT
 
     __table_args__ = (

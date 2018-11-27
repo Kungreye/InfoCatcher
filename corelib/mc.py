@@ -111,6 +111,7 @@ def cache(key_pattern, expire=None):
 
 
 def pcache(key_pattern, count=300, expire=None):
+    """cache with pagination"""
     def deco(f):
         arg_names, varargs, varkw, defaults = inspect.getfullargspec(f)[:4]
         if varargs or varkw:
