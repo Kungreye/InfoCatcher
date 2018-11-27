@@ -32,7 +32,7 @@ class Post(BaseMixin, CommentMixin, db.Model):
 
     def url(self):
         return '/{}/{}/'.format(self.__class__.__name__.lower(),
-                                self.slug or self.id)
+                                self.title or self.id)
 
     @classmethod
     def __flush_event__(cls, target):
@@ -40,7 +40,7 @@ class Post(BaseMixin, CommentMixin, db.Model):
 
     @classmethod
     def get(cls, identifier):
-        post = cls.cache.filter(slug=identifier).first()    # not default `get` in BaseModel
+        post = cls.cache.filter(title=identifier).first()    # not default `get` in BaseModel
         if post:
             return post
         if is_numeric(identifier):
@@ -52,7 +52,7 @@ class Post(BaseMixin, CommentMixin, db.Model):
     def tags(self):
         at_ids = PostTag.query.with_entities(
             PostTag.tag_id).filter(
-                PostTag.article_id == self.id
+                PostTag.post_id == self.id
             ).all()
 
         tags = Tag.query.filter(Tag.id.in_(id for id, in at_ids))
