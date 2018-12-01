@@ -228,7 +228,7 @@ class Cache(object):
             r.set(cache_key, count)
         return count
 
-    def filter(self, order_by='asc', offset='None', limit=None, **kwargs):
+    def filter(self, order_by='asc', offset=None, limit=None, **kwargs):
         if kwargs:
             if len(kwargs) > 1:
                 raise TypeError(
