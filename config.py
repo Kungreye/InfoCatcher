@@ -7,7 +7,7 @@ UPLOAD_FOLDER = os.path.join(HERE, 'permdir')
 
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'you-will-never-guess-this')
-TEMPLATES_AUTO_RELOAD = False
+TEMPLATES_AUTO_RELOAD = True
 
 
 DEBUG = False

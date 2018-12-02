@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='dist/post.js') }}"></script>
+{% endblock %}
+
+{% block title %}{{ post.title }}{% endblock title %}
+
+{% block content %}
+<p>{{ post.title }}</p>
+<p>{{ post.abstract_content }}</p>
+{% endblock content %}
