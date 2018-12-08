@@ -20,7 +20,7 @@ def send_mail_task(msg):
     mp['To'] = ','.join(send_to)
     mp.attach(part)
 
-    s = smtplib.SMTP_SSL(host=MAIL_SERVER, port=MAIL_PORT)
+    s = smtplib.SMTP_SSL(host=MAIL_SERVER, port=int(MAIL_PORT))
     s.login(MAIL_USERNAME, MAIL_PASSWORD)
     s.sendmail(from_addr=MAIL_USERNAME, to_addrs=send_to, msg=bytes(mp.as_string(), 'utf-8'))
     s.quit()

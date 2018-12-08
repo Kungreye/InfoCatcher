@@ -65,8 +65,8 @@ SOCIAL_AUTH_USER_MODEL = 'models.user.User'
 # TODO
 
 
-MAIL_SERVER = os.getenv('MAIL_SERVER', 'smtp.163.com')
-MAIL_PORT = int(os.getenv('MAIL_PORT')) or 25
+MAIL_SERVER = os.getenv('MAIL_SERVER')
+MAIL_PORT = os.getenv('MAIL_PORT') or '25'  # when used, remember to int(MAIL_PORT)
 MAIL_USE_SSL = True if (os.getenv('MAIL_USE_SSL') is not None) else False
 MAIL_USERNAME = os.getenv('MAIL_USERNAME')
 MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
