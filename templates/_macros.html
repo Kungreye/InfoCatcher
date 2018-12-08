@@ -1,0 +1,82 @@
+{% macro card(post) %}
+    {% set author = post.author %}
+<div class="post detail">
+    <div class="btn-group-vertical upvote">
+        <a id="like-button-{{ post.id }}" class="btn btn-default btn-xs like-button" title="" data-remote="true" rel="nofollow" data-method="post" href="/likes/post/{{ post.id }}" data-original-title="Upvote">
+            <i class="iconfont InfoCatcher-like"></i> <span>8</span>
+        </a>
+        <a id="favourite-button-{{ post.id }}" class="btn btn-default btn-xs favourite-button" title="" data-remote="true" rel="nofollow" data-method="post" href="/favourites/post/{{ post.id }}" data-original-title="Favourite">
+            <i class="iconfont InfoCatcher-collect"></i>
+        </a>
+    </div>
+
+    <div class="content">
+        <h3 class="title">
+            <a target="_blank" rel="external" title="{{ post.title }} - InfoCatcher" href="{{ post.orig_url }}">
+                {{ post.title }}
+            </a>
+        </h3>
+        <p class="summary"><a href="{{ post.url() }}">{{ post.abstract_content }}</a></p>
+        <div class="meta">
+            {{ post.orig_url }}
+            <span>
+                <i class="iconfont InfoCatcher-comment"></i> 0
+            </span>
+        </div>
+    </div>
+
+    <div class="user-info">
+        <div class="user-avatar">
+            <a title="{{ author.name }} - InfoCatcher" href="{{ author.url() }}">
+                <img width="32" alt="{{ author.name }}" src="{ author.avatar_path }}">
+            </a>
+        </div>
+        <div class="info">
+            <h5>Author</h5>
+            <a href="/u/200993"><img width="48" alt="{{ author.name }} - InfoCatcher" src="{{ author.avatar_path }}"></a>
+            <h4 class="m-b-xs">{{ author.name }}</h4>
+            <p class="bio">{{ author.bio }}</p>
+            <a class="btn btn-info btn-xs follow-200993" data-disable-with="Please wait..." data-remote="true" rel="nofollow" data-method="post" href="{{ author.url() }}/follow">
+                <i class="fa fa-eye"></i> Follow
+            </a>
+        </div>
+    </div>
+
+    <div class="subject-name">
+        <a href="{{ author.url() }}">{{ author.name }}</a>
+    </div>
+
+</div>
+{% endmacro %}
+
+
+
+{% macro render_pagination(pagination, endpoint, ident) %}
+<nav aria-label="...">
+    <ul class="pagination">
+        {% if pagination.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for(endpoint, page=pagination.prev_num, ident=ident) }}">Prev &laquo;</a>
+        </li>
+        {% endif %}
+
+        {%- for page in pagination.iter_pages() %}
+        {% if page %}
+            <li class="page-item {% if page == pagination.page %} active{% endif %}">
+                <a class="page-link" href="{{ url_for(endpoint, page=page, ident=ident) }}">{{ page }}</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#">...</a>
+            </li>
+        {% endif %}
+        {%- endfor %}
+
+        {% if pagination.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for(endpoint, page=pagination.next_num, ident=ident) }}">Next &raquo;</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endmacro %}

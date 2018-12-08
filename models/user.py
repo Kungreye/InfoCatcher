@@ -85,17 +85,12 @@ class User(db.Model, UserMixin, BaseMixin):
         self.avatar_id = avatar_id
         self.save()
 
-    def upload_avatar(self, avatar_url):
+    def upload_avatar(self, img):
         avatar_id = generate_id()
         filename = os.path.join(
             UPLOAD_FOLDER, 'avatars', '{}.png'.format(avatar_id))
-        r = requests.get(avatar_url, stream=True)
-        if r.status_code == 200:
-            with open(filename, 'wb') as f:
-                for chunk in r.iter_content(1024):
-                    f.write(chunk)
-            self.avatar_id = avatar_id
-            self.save()
+        img.save(filename)
+        self.update_avatar(avatar_id)
 
 
 user_datastore = BranSQLAlchemyUserDatastore(db, User, Role)

@@ -1,0 +1,34 @@
+{% extends "security/base.html" %}
+{% from "security/_macros.html" import render_field_with_errors, render_field, render_submit %}
+{% include "security/_messages.html" %}
+
+{% block title %}Register{% endblock %}
+
+
+{% block content %}
+<div class="form-horizontal">
+    <br>
+    <h3 class="text-center">Register</h3>
+    <br>
+    <form action="{{ url_for_security('register') }}" method="post" name="register_user_form">
+        {{ register_user_form.hidden_tag() }}
+        {{ render_field_with_errors(register_user_form.name) }}
+        {{ render_field_with_errors(register_user_form.email) }}
+        {{ render_field_with_errors(register_user_form.password) }}
+        {% if register_user_form.password_confirm %}
+            {{ render_field_with_errors(register_user_form.password_confirm) }}
+        {% endif %}
+        {{ render_submit('Register') }}
+    </form>
+    <br>
+    <div class="text-center">
+        <a class="btn btn-default" href="/login/douban"><i class="fa fa-weixin"></i> Douban</a>
+        <a class="btn btn-default" href="/login/github"><i class="fa fa-github"></i> GitHub</a>
+    </div>
+    <div class="menu">
+        <p class="center">
+            <a href="{{ url_for_security('login') }}{% if 'next' in  request.args %}?next={{ request.args.next|urlencode }}{% endif %}">Already have registered account?</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

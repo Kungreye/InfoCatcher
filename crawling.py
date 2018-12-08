@@ -55,7 +55,7 @@ def fetch(url):
             tags = []
 
         ok, _ = Post.create_or_update(
-            author_id=100001, title=entry.title, orig_url=entry.link,
+            author_id=2, title=entry.title, orig_url=entry.link,
             content=strip_tags(content), created_at=created_at,
             tags = [tag.term for tag in tags])
 
@@ -63,7 +63,6 @@ def fetch(url):
 def main():
     with app.test_request_context():
         for site in (
-            'https://coolshell.cn/feed',
             'http://www.dongwm.com/atom.xml',
         ):
             fetch(site)

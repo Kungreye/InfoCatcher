@@ -48,6 +48,26 @@ def is_numeric(value):
     return True
 
 
+def trunc_utf8(string, num, etc="..."):
+    if num > len(string):
+        return string
+
+    if etc:
+        trunc_idx = num - len(ect)
+    else:
+        trunc_idx = num
+    ret = string[:trunc_idx]
+    if etc:
+        ret += etc
+    return ret
+
+
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__dict__ = self
+
+
 class Empty:
 
     def __call__(self, *a, **kw):

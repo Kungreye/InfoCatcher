@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <section>
+        <div class="center">
+            <div class="landing">
+                {% if type in ('reset', 'confirm', 'register') %}
+                <h3 class="title">Successfully submitted! Please {{ action }} account</h3>
+
+                <div class="cont">
+                    <div class="desc">
+                        {{ action }} Email has been sent to {{ email }}, please login email within 6 hours to complete {{ action }}.
+                    </div>
+                    <div class="split"></div>
+                    <div class="email_rel">
+                        <h3>No email received?</h3>
+                        <ul>
+                            <li><i></i>Try to check ads/spam folder</li>
+                            <li><i></i>If not found, <a class="u-a" href="/confirm">send again</a></li>
+                            <li><i></i>Still not received, please change email. <a class="u-a" href="/register">Register again</a></li>
+                        </ul>
+                    </div>
+                </div>
+                {% else %}
+                <p class="confirmed">{{ email }} confirmed! <a href="{{ url_for_security('login') }}">Please login</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+
+{% block bottomscript %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='dist/landing.js') }}"></script>
+{% endblock %}

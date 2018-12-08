@@ -1,19 +1,27 @@
 # _*_ coding: utf-8 _*_
 
 import os
+import math
 
 from ext import db
 
 from models.comment import CommentMixin
 from models.consts import K_POST
+from models.exceptions import NotAllowedException
 from models.mixin import BaseMixin
+from models.user import User
 
 from corelib.db import PropsItem
-from corelib.mc import rdb
-from corelib.utils import is_numeric, cached_hybrid_property
+from corelib.mc import rdb, cache
+from corelib.utils import is_numeric, cached_hybrid_property, trunc_utf8
 
 
 MC_KEY_ALL_TAGS = 'core:all_tags'
+MC_KEY_POSTS_BY_TAG = 'core:posts_by_tags:%s:%s'
+MC_KEY_POST_STATS_BY_TAG = 'core:count_by_tags:%s'
+
+PER_PAGE = 2
+
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -31,8 +39,7 @@ class Post(BaseMixin, CommentMixin, db.Model):
     )
 
     def url(self):
-        return '/{}/{}/'.format(self.__class__.__name__.lower(),
-                                self.title or self.id)
+        return '/{}/{}/'.format(self.__class__.__name__.lower(), self.id)
 
     @classmethod
     def __flush_event__(cls, target):
@@ -55,13 +62,16 @@ class Post(BaseMixin, CommentMixin, db.Model):
                 PostTag.post_id == self.id
             ).all()
 
-        tags = Tag.query.filter(Tag.id.in_(id for id, in at_ids))
-        tags = [t.name for t in tags]
+        tags = Tag.query.filter(Tag.id.in_((id for id, in at_ids))).all()
         return tags
 
     @cached_hybrid_property
     def abstract_content(self):
-        return self.content
+        return trunc_utf8(self.content, 100)
+
+    @cached_hybrid_property
+    def author(self):
+        return User.get(self.author_id)
 
     @classmethod
     def create_or_update(cls, **kwargs):
@@ -72,10 +82,20 @@ class Post(BaseMixin, CommentMixin, db.Model):
             PostTag.update_multi(obj.id, tags)
         return created, obj
 
+    def delete(self):
+        id = self.id
+        super().delete()    # defined in BaseMixin
+        for pt in PostTag.query.filter_by(post_id=id):
+            pt.delete()
+
+    @staticmethod
+    def _flush_delete_event(mapper, connection, target):
+        pass
+
 
 class Tag(BaseMixin, db.Model):
     __tablename__ = 'tags'
-    name = db.Column(db.String(128), default='')
+    name = db.Column(db.String(128), default='', unique=True)
 
     __table_args__ = (
         db.Index('idx_name', name),
@@ -84,6 +104,22 @@ class Tag(BaseMixin, db.Model):
     @classmethod
     def get_by_name(cls, name):
         return cls.query.filter_by(name=name).first()
+
+    def delete(self):
+        raise NotAllowedException
+
+    def update(self, **kwargs):
+        raise NotAllowedException
+
+    @classmethod
+    def create(cls, **kwargs):
+        name = kwargs.pop('name')
+        kwargs['name'] = name.lower()
+        return super().create(**kwargs)
+
+    @classmethod
+    def __flush_event__(cls, target):
+        rdb.delete(MC_KEY_ALL_TAGS)
 
 
 class PostTag(BaseMixin, db.Model):
@@ -97,7 +133,7 @@ class PostTag(BaseMixin, db.Model):
     )
 
     @classmethod
-    def get_posts_by_tag(cls, identifier):
+    def _get_posts_by_tag(cls, identifier):
         if not identifier:
             return []
         if not is_numeric(identifier):
@@ -105,13 +141,27 @@ class PostTag(BaseMixin, db.Model):
             if not tag:
                 return
             identifier = tag.id
-        at_ids = cls.query.with_entities(cls.post_id).filter(
-            cls.tag_id == identifier
+        at_ids = Post.query.with_entities(cls.post_id).filter(
+            cls.tag_id==identifier
         ).all()
 
-        posts = Post.query.filter(
+        query = Post.query.filter(
             Post.id.in_(id for id, in at_ids)).order_by(Post.id.desc())
-        return posts
+        return query
+
+    @classmethod
+    @cache(MC_KEY_POSTS_BY_TAG % ('{identifier}', '{page}'))
+    def get_posts_by_tag(cls, identifier, page=1):
+        query = cls._get_posts_by_tag(identifier)
+        posts = query.paginate(page, PER_PAGE)
+        del posts.query     # Fix 'TypeError: can't pickle _thread.lock objects'
+        return
+
+    @classmethod
+    @cache(MC_KEY_POST_STATS_BY_TAG % ('{identifier}'))
+    def get_count_by_tag(cls, identifier):
+        query = cls._get_posts_by_tag(identifier)
+        return query.count()
 
     @classmethod
     def update_multi(cls, post_id, tags):
@@ -140,3 +190,34 @@ class PostTag(BaseMixin, db.Model):
         for tag_id in need_add_tag_ids:
             cls.create(post_id=post_id, tag_id=tag_id)
         db.session.commit()
+
+    @staticmethod
+    def _flush_insert_event(mapper, connection, target):
+        super(PostTag, target)._flush_insert_event(mapper, connection, target)
+        target.clear_mc(target, 1)
+
+    @staticmethod
+    def _flush_delete_event(mapper, connection, target):
+        super(PostTag, target)._flush_delete_event(mapper, connection, target)
+        target.clear_mc(target, -1)
+
+    @staticmethod
+    def _flush_after_update_event(mapper, connection, target):
+        super(PostTag, target)._flush_after_update_event(mapper, connection, target)
+        target.clear_mc(target, 1)
+
+    @staticmethod
+    def _flush_before_update_event(mapper, connection, target):
+        super(PostTag, target)._flush_before_update_event(mapper, connection, target)
+        target.clear_mc(target, -1)
+
+    @staticmethod
+    def clear_mc(target, amount):
+        post_id = target.post_id
+        tag_name = Tag.get(target.tag_id).name
+        for ident in (post_id, tag_name):       # maybe wrong, only `tag_name` is needed?
+            total = int(PostTag.get_count_by_tag(ident))
+            rdb.incr(MC_KEY_POST_STATS_BY_TAG % ident, amount)
+            pages = math.ceil((max(total, 0) or 1) / PER_PAGE)
+            for p in range(1, pages + 1):
+                rdb.delete(MC_KEY_POSTS_BY_TAG % (ident, p))

@@ -1,6 +1,5 @@
 const glob = require('glob')
 const path = require('path')
-const ExtractTextPlugin = require('mini-css-extract-plugin')
 
 const config = {
     entry: glob.sync('./src/**/*.js').reduce(
@@ -24,6 +23,13 @@ const config = {
                     "style-loader",
                     "css-loader",
                     "sass-loader"
+                ]
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    "style-loader",
+                    "css-loader"
                 ]
             }
         ]

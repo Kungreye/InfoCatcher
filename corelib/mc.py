@@ -7,6 +7,7 @@ Derived from practice of Memcached.
 import re
 import inspect
 from functools import wraps
+from pickle import UnpicklingError
 
 from sqlalchemy.ext.serializer import loads, dumps
 
@@ -17,6 +18,8 @@ from corelib.utils import Empty
 __formatters = {}
 percent_pattern = re.compile(r'%\w')
 brace_pattern = re.compile(r'\{[\w\d\.\[\]_]+\}')
+
+BUILTIN_TYPES = (int, float, str, bytes, bool)
 
 
 def formatter(text):
@@ -98,10 +101,14 @@ def cache(key_pattern, expire=None):
             if r is None:
                 r = f(*a, **kw)
                 if r is not None:
-                    r = dumps(r)
+                    if not isinstance(r, BUILTIN_TYPES):
+                        r = dumps(r)
                     rdb.set(key, r, expire)
 
-            r = loads(r)
+            try:
+                r = loads(r)
+            except (TypeError, UnpicklingError):
+                pass
             if isinstance(r, Empty):
                 r = None
             return r

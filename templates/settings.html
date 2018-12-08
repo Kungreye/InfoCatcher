@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Private Setting{% endblock %}
+
+{% block head %}
+{{ super() }}
+    <script src="{{ url_for('static', filename='dist/settings.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+{% set user = request.user %}
+{% if notice %}
+    <div id="notice-wrapper" class="container"><div id="notice" class="alert alert-info">Save successfully!</div></div>
+{% endif %}
+<h3 class="text-center">Private Setting</h3>
+<br>
+<form class="form-horizontal" data-toggle="validator" novalidate="novalidate" enctype="multipart/form-data" action="/settings/" accept-charset="UTF-8" method="post">
+    <div class="form-group">
+        <label class="string optional col-sm-2 control-label" for="user_image">Avatar</label>
+        <div class="col-sm-10">
+            <img class="user-avatar" src="{{ user.avatar_path }}">
+            <input class="avatar-field" type="file" name="user_image" id="user_image">
+        </div>
+    </div>
+
+    <div class="form-group string optional user_uname">
+        <label class="string optional col-sm-2 control-label" for="nickname">Nickname</label>
+        <div class="col-sm-10">
+            <input class="string optional form-control" type="text" value="{{ user.nickname }}" name="nickname" id="nickname">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="string optional col-sm-2 control-label" for="github_id">GitHub</label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-addon" id="basic-addon1">https://github.com/</span>
+                <input class="form-control" placeholder="username" type="text" value="{{ user.github_id }}" name="github_id" id="github_id">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group url optional user_blog">
+        <label class="url optional col-sm-2 control-label" for="website">Homepage</label>
+        <div class="cos-sm-10">
+            <input value="{{ user.website }}" class="string url optional form-control" placeholder="http://" type="url" name="website" id="website">
+        </div>
+    </div>
+
+    <div class="form-group string optional user_bio">
+        <label class="string optional col-sm-2 control-label" for="user_bio">About Me</label>
+        <div class="col-sm-10">
+            <input class="string optional form-control" placeholder="Introduce yourself" type="text" value="{{ user.bio or '' }}" id="user_bio">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <input type="submit" name="submit" value="Save" class="btn btn-default">
+        </div>
+    </div>
+
+</form>
+{% endblock %}
