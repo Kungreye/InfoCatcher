@@ -155,7 +155,7 @@ class PostTag(BaseMixin, db.Model):
         query = cls._get_posts_by_tag(identifier)
         posts = query.paginate(page, PER_PAGE)
         del posts.query     # Fix 'TypeError: can't pickle _thread.lock objects'
-        return
+        return posts
 
     @classmethod
     @cache(MC_KEY_POST_STATS_BY_TAG % ('{identifier}'))

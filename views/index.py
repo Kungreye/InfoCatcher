@@ -38,4 +38,4 @@ def tag(ident):
             abort(404)
     page = int(request.args.get('page') or 1)
     posts = PostTag.get_posts_by_tag(ident, page)   # `PostTag.get_posts_by_tag` returns a pagination object, so use `posts.items` in tag.html
-    return render_template('tag.html', tag=tag, ident=ident, posts=posts)
+    return render_template('tag.html', tag=tag, ident=ident, posts=posts)   #  `posts` here is pagination object.
