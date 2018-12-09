@@ -48,7 +48,8 @@ def ishell(ipython_args):
         config = load_default_config()
 
     user_ns = app.make_shell_context()
-    user_ns.update(dict(db=db, User=User, Role=Role, rdb=rdb))
+    user_ns.update(dict(db=db, User=User, Role=Role, rdb=rdb, Post=Post,
+                        Tag=Tag, PostTag=PostTag))
     config.TerminalInteractiveShell.banner1 = """Python %s on %s
 IPython: %s
 App: %s%s
@@ -56,7 +57,7 @@ Instance: %s""" % (sys.version,
                    sys.platform,
                    IPython.__version__,
                    app.import_name,
-                   app.debug and ['debug'] or '',
+                   app.debug and ' [debug]' or '',
                    app.instance_path)
 
     IPython.start_ipython(argv=ipython_args, user_ns=user_ns, config=config)

@@ -141,8 +141,8 @@ class PostTag(BaseMixin, db.Model):
             if not tag:
                 return
             identifier = tag.id
-        at_ids = Post.query.with_entities(cls.post_id).filter(
-            cls.tag_id==identifier
+        at_ids = cls.query.with_entities(cls.post_id).filter(
+            cls.tag_id == identifier
         ).all()
 
         query = Post.query.filter(
