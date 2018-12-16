@@ -3,7 +3,7 @@
 
 {% block title %}{{ tag.name }} - InfoCatcher{% endblock %}
 
-{% block head %}
+{% block bottomscript %}
 {{ super() }}
     <script src="{{ url_for('static', filename='dist/tag.js') }}"></script>
 {% endblock %}
@@ -13,5 +13,5 @@
     {% for post in posts.items %}
     {{ macros.card(post) }}
     {% endfor %}
-    {{ macros.render_pagination(posts, 'index.tag', ident) }}
+    {{ macros.render_pagination(posts, 'index.tag', ident=ident) }}
 {% endblock %}

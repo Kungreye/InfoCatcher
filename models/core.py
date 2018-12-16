@@ -2,14 +2,20 @@
 
 import os
 import math
+from urllib.request import urlparse
+
+import redis
 
 from ext import db
+from config import PER_PAGE
 
-from models.comment import CommentMixin
 from models.consts import K_POST
 from models.exceptions import NotAllowedException
-from models.mixin import BaseMixin
 from models.user import User
+from models.mixin import BaseMixin
+from models.collect import CollectMixin
+from models.comment import CommentMixin
+from models.like import LikeMixin
 
 from corelib.db import PropsItem
 from corelib.mc import rdb, cache
@@ -20,12 +26,10 @@ MC_KEY_ALL_TAGS = 'core:all_tags'
 MC_KEY_POSTS_BY_TAG = 'core:posts_by_tags:%s:%s'
 MC_KEY_POST_STATS_BY_TAG = 'core:count_by_tags:%s'
 
-PER_PAGE = 2
-
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 
-class Post(BaseMixin, CommentMixin, db.Model):
+class Post(BaseMixin, CommentMixin, LikeMixin, CollectMixin, db.Model):
     __tablename__ = 'posts'
     author_id = db.Column(db.Integer)
     title = db.Column(db.String(128), default='')
@@ -47,11 +51,8 @@ class Post(BaseMixin, CommentMixin, db.Model):
 
     @classmethod
     def get(cls, identifier):
-        post = cls.cache.filter(title=identifier).first()    # not default `get` in BaseModel
-        if post:
-            return post
         if is_numeric(identifier):
-            return cls.cache.get(identifier)    # get post by means of a title
+            return cls.cache.get(identifier)    # get post via title
         return cls.cache.filter(title=identifier).first()
 
     @property
@@ -88,9 +89,9 @@ class Post(BaseMixin, CommentMixin, db.Model):
         for pt in PostTag.query.filter_by(post_id=id):
             pt.delete()
 
-    @staticmethod
-    def _flush_delete_event(mapper, connection, target):
-        pass
+    @cached_hybrid_property
+    def nectloc(self):
+        return '{0.scheme}://{0.netloc}'.format(urlparse(self.orig_url))
 
 
 class Tag(BaseMixin, db.Model):
@@ -213,11 +214,14 @@ class PostTag(BaseMixin, db.Model):
 
     @staticmethod
     def clear_mc(target, amount):
-        post_id = target.post_id
         tag_name = Tag.get(target.tag_id).name
-        for ident in (post_id, tag_name):       # maybe wrong, only `tag_name` is needed?
-            total = int(PostTag.get_count_by_tag(ident))
-            rdb.incr(MC_KEY_POST_STATS_BY_TAG % ident, amount)
-            pages = math.ceil((max(total, 0) or 1) / PER_PAGE)
-            for p in range(1, pages + 1):
-                rdb.delete(MC_KEY_POSTS_BY_TAG % (ident, p))
+        stat_key = MC_KEY_POST_STATS_BY_TAG % tag_name
+        total = int(PostTag.get_count_by_tag(tag_name))
+        try:
+            rdb.incr(stat_key, amount)
+        except redis.exceptions.ResponseError:
+            rdb.delete(stat_key)
+            rdb.incr(stat_key, amount)
+        pages = math.ceil((max(total, 0) or 1)/PER_PAGE)
+        for p in range(1, pages + 1):
+            rdb.delete(MC_KEY_POSTS_BY_TAG % (tag_name, p))

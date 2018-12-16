@@ -16,9 +16,11 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_RECORD_QUERIES = True    # for using `get_debug_queries` of Flask-SQLAlchemy
 DATABASE_QUERY_TIMEOUT = 0.5    # slow database query threshold (in seconds)
 
+
 CACHE_TYPE = 'redis'
 REDIS_URL = "redis://localhost:6379"
 CACHE_REDIS_URL = REDIS_URL
+
 
 # Core of flask-security
 SECURITY_PASSWORD_SALT = '234'  # HMAC salt
@@ -71,6 +73,20 @@ MAIL_USE_SSL = True if (os.getenv('MAIL_USE_SSL') is not None) else False
 MAIL_USERNAME = os.getenv('MAIL_USERNAME')
 MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
 MAIL_DEFAULT_SENDER = ('InfoCatcher', MAIL_USERNAME)
+
+
+# elasticsearch config
+ES_HOSTS = ['localhost']
+PER_PAGE = 2
+
+
+# celery config
+BROKER_URL = 'pyamqp://kungreye:123456@localhost:5672/InfoCatcher'  # use RabbitMQ as celery broker
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_TASK_SERIALIZER = 'msgpack'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_RESULT_EXPIRES = 60 * 60 * 24
+CELERY_ACCEPT_CONTENT = ['msgpack', 'json']
 
 
 if not os.path.exists(UPLOAD_FOLDER):

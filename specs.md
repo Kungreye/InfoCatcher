@@ -56,10 +56,19 @@
 
 ---
 ### 11. 注册和登录
+- flask-security(定制)
 
 ---
 ### 12. 用户个人设置页面
 
 ---
 ### 13. 标签功能
- 
+
+---
+### 14. 搜索
+- Elasticsearch
+- elasticsearch-dsl-py
+
+---
+### 15. 使用消息队列/Celery处理事件
+- RabbitMQ

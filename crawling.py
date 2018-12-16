@@ -7,7 +7,8 @@ from html.parser import HTMLParser
 import feedparser   # parser of RSS/Atom
 
 from app import app
-from models.core import Post
+from models.core import Post, Tag, PostTag, db
+from models.search import Item
 
 
 class MLStripper(HTMLParser):
@@ -40,6 +41,9 @@ def fetch(url):
     # parse a feed from a URL, file, stream or string, and return a FeedParserDict.
     d = feedparser.parse(url)
     entries = d.entries     # list of entry-level data
+
+    posts = []
+
     for entry in entries:
         try:
             content = entry.content and entry.content[0].value
@@ -48,21 +52,31 @@ def fetch(url):
         try:
             created_at = datetime.strptime(entry.published, '%Y-%m-%dT%H:%M:%S.%fZ')
         except ValueError:
-            created_at = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %z')
+            created_at = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %z')     # e.g.  Fri, 12 Oct ...
         try:
             tags = entry.tags
         except AttributeError:
             tags = []
 
         # Note: `author_id` should corresponds to a registered user_id.
-        ok, _ = Post.create_or_update(
+        ok, post = Post.create_or_update(
             author_id=1, title=entry.title, orig_url=entry.link,
             content=strip_tags(content), created_at=created_at,
             tags = [tag.term for tag in tags])
+        if ok:
+            posts.append(post)
+            # Item.add(post)
+    # Item.bulk_update(posts, op_type='create')
 
 
 def main():
     with app.test_request_context():
+        Item._index.delete(ignore=404)  # delete Elasticsearch index, remove all data
+        Item.init()     # create the index and populate the mappings in elasticsearch
+        for model in (Post, Tag, PostTag):
+            model.query.delete()    # by means of sqlalchemy to maneuver database. Do NOT directly operate on database.
+        db.session.commit()
+
         for site in (
             'http://www.dongwm.com/atom.xml',
         ):

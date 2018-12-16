@@ -355,25 +355,38 @@ class BaseModel(PropsMixin, Model):
         return '/{}/{}/'.format(self.__class__.__name__.lower(), self.id)
 
     def to_dict(self):
-        columns = self.__table__.columns.keys()
-        dct = {key: getattr(self, key) for key in columns}
+        columns = self.__table__.columns.keys() + ['kind']
+        dct = {key: getattr(self, key, None) for key in columns}
         return dct
 
     @staticmethod
     def _flush_insert_event(mapper, connection, target):
         target._flush_event(mapper, connection, target)
-
-    @staticmethod
-    def _flush_after_update_event(mapper, connection, target):
-        target._flush_event(mapper, connection, target)
+        if hasattr(target, 'kind'):
+            from handler.tasks import reindex
+            reindex.delay(target.id, target.kind, op_type='create')
+        target.__flush_insert_event__(target)
 
     @staticmethod
     def _flush_before_update_event(mapper, connection, target):
         target._flush_event(mapper, connection, target)
+        target.__flush_before_update_event__(target)
+
+    @staticmethod
+    def _flush_after_update_event(mapper, connection, target):
+        target._flush_event(mapper, connection, target)
+        if hasattr(target, 'kind'):
+            from handler.tasks import reindex
+            reindex.delay(target.id, target.kind, op_type='update')
+        target.__flush_after_update_event__(target)
 
     @staticmethod
     def _flush_delete_event(mapper, connection, target):
         target._flush_event(mapper, connection, target)
+        if hasattr(target, 'kind'):
+            from handler.tasks import reindex
+            reindex.delay(target.id, target.kind, op_type='delete')
+        target.__flush_delete_event__(target)
 
     @staticmethod
     def _flush_event(mapper, connection, target):
@@ -385,11 +398,27 @@ class BaseModel(PropsMixin, Model):
         pass
 
     @classmethod
+    def __flush_insert_event__(cls, target):
+        pass
+
+    @classmethod
+    def __flush_before_update_event__(cls, target):
+        pass
+
+    @classmethod
+    def __flush_after_update_event__(cls, target):
+        pass
+
+    @classmethod
+    def __flush_delete_event__(cls, target):
+        pass
+
+    @classmethod
     def __declare_last__(cls):
-        event.listen(cls, 'after_delete', cls._flush_delete_event)
-        event.listen(cls, 'after_update', cls._flush_after_update_event)
-        event.listen(cls, 'before_update', cls._flush_before_update_event)
         event.listen(cls, 'after_insert', cls._flush_insert_event)
+        event.listen(cls, 'before_update', cls._flush_before_update_event)
+        event.listen(cls, 'after_update', cls._flush_after_update_event)
+        event.listen(cls, 'after_delete', cls._flush_delete_event)
 
 
 class UnLockedAlchemy(SQLAlchemy):

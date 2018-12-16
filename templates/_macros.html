@@ -1,11 +1,14 @@
 {% macro card(post) %}
     {% set author = post.author %}
+    {% set is_liked = post.is_liked_by(request.user_id) %}
+    {% set is_collected = post.is_collected_by(request.user_id) %}
+
 <div class="post detail">
     <div class="btn-group-vertical upvote">
-        <a id="like-button-{{ post.id }}" class="btn btn-default btn-xs like-button" title="" data-remote="true" rel="nofollow" data-method="post" href="/likes/post/{{ post.id }}" data-original-title="Upvote">
+        <a id="like-button-{{ post.id }}" class="btn btn-default btn-xs like-button {% if is_liked %}liked{% endif %}" rel="nofollow" data-url="post/{{ post.id }}/like" data-original-title="Upvote">
             <i class="iconfont InfoCatcher-like"></i> <span>8</span>
         </a>
-        <a id="favourite-button-{{ post.id }}" class="btn btn-default btn-xs favourite-button" title="" data-remote="true" rel="nofollow" data-method="post" href="/favourites/post/{{ post.id }}" data-original-title="Favourite">
+        <a id="favourite-button-{{ post.id }}" class="btn btn-default btn-xs collect-button {% if is_collected %}collected{% endif %}" rel="nofollow" data-method="post" data-url="post/{{ post.id }}/collect" data-original-title="Collect">
             <i class="iconfont InfoCatcher-collect"></i>
         </a>
     </div>
@@ -51,32 +54,46 @@
 
 
 
-{% macro render_pagination(pagination, endpoint, ident) %}
+{% macro render_pagination(pagination, endpoint) %}
 <nav aria-label="...">
     <ul class="pagination">
         {% if pagination.has_prev %}
         <li class="page-item">
-            <a class="page-link" href="{{ url_for(endpoint, page=pagination.prev_num, ident=ident) }}">Prev &laquo;</a>
+            <a class="page-link" href="{{ url_for(endpoint, page=pagination.prev_num, **kwargs) }}">Prev &laquo;</a>
         </li>
         {% endif %}
 
-        {%- for page in pagination.iter_pages() %}
-        {% if page %}
-            <li class="page-item {% if page == pagination.page %} active{% endif %}">
-                <a class="page-link" href="{{ url_for(endpoint, page=page, ident=ident) }}">{{ page }}</a>
-            </li>
-        {% else %}
-            <li class="page-item disabled">
-                <a class="page-link" href="#">...</a>
-            </li>
+        {% if pagination %}
+            {%- for page in pagination.iter_pages() %}
+            {% if page %}
+                <li class="page-item {% if page == pagination.page %} active{% endif %}">
+                    <a class="page-link" href="{{ url_for(endpoint, page=page, **kwargs) }}">{{ page }}</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">...</a>
+                </li>
+            {% endif %}
+            {%- endfor %}
         {% endif %}
-        {%- endfor %}
 
         {% if pagination.has_next %}
         <li class="page-item">
-            <a class="page-link" href="{{ url_for(endpoint, page=pagination.next_num, ident=ident) }}">Next &raquo;</a>
+            <a class="page-link" href="{{ url_for(endpoint, page=pagination.next_num, **kwargs) }}">Next &raquo;</a>
         </li>
         {% endif %}
     </ul>
 </nav>
+{% endmacro %}
+
+
+{% macro render_comment(comment) %}
+{% set user = comment.user %}
+<div class="comment media">
+    <a class="media left" href="{{ user.url() }}"><img src="{{ user.avatar_path }}" alt="Thumb"></a>
+    <div class="media-body">
+        <h4 class="media-heading">{{ user.name }}<small class="date">{{ comment.created_at }}</small></h4>
+        <div>{{ comment.content }}</div>
+    </div>
+</div>
 {% endmacro %}
