@@ -90,7 +90,7 @@ class Post(BaseMixin, CommentMixin, LikeMixin, CollectMixin, db.Model):
             pt.delete()
 
     @cached_hybrid_property
-    def nectloc(self):
+    def netloc(self):
         return '{0.scheme}://{0.netloc}'.format(urlparse(self.orig_url))
 
 
