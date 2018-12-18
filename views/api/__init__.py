@@ -65,13 +65,13 @@ class ActionAPI(MethodView):
         return post
 
     @marshal_with(PostSchema)
-    def post(self, post_id):
+    def post(self, post_id):    #  `post` corresponds to method 'POST'
         post = self._prepare(post_id)
         if self.do_action != 'add_comment':
-            # only when 'add_comment' involves 'content'
+            # only `add_comment` involves `content`
             ok = getattr(post, self.do_action)(request.user_id)
         else:
-            content = request.form.get('content')
+            content = request.form.get('content')   # 'content' in comment form of post.html ?
             ok, comment = getattr(post, self.do_action)(
                 request.user_id, content)
             if ok:

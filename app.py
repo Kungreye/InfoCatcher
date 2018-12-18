@@ -3,15 +3,17 @@
 
 from flask import render_template
 from flask_security import current_user
+from werkzeug.wsgi import DispatcherMiddleware
 
 from corelib.flask import Flask
 from corelib.email import send_mail_task as _send_mail_task
 from ext import security, db, mail
 from forms import ExtendedLoginForm, ExtendedRegisterForm
 
-import views.index as index
-import views.account as account
 import config
+import views.account as account
+import views.index as index
+from views.api import json_api as api
 
 
 def _inject_processor():
@@ -46,6 +48,10 @@ def create_app():
 
     app.register_blueprint(index.bp, url_prefix='/')
     app.register_blueprint(account.bp, url_prefix='/')
+
+    app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
+        '/api': api
+    })
 
     @app.teardown_request   # register a func to be run at the end of each request, regardless of whether there was an exception or not.
     def teardown_request(exception):

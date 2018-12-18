@@ -71,4 +71,8 @@
 
 ---
 ### 15. 使用消息队列/Celery处理事件
-- RabbitMQ
+- RabbitMQ (amqp)
+- Celery
+
+---
+### 16. 点赞/收藏

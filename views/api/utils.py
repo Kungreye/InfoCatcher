@@ -29,6 +29,7 @@ class marshal_with(object):
         def wrapper(*args, **kwargs):
             resp = f(*args, **kwargs)
             return marshal(resp, self.schema)
+        return wrapper
 
 
 class ApiResult(object):
