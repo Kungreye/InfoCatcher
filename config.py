@@ -81,7 +81,7 @@ PER_PAGE = 2
 
 
 # celery config
-BROKER_URL = 'pyamqp://kungreye:123456@localhost:5672/InfoCatcher'  # use RabbitMQ as celery broker
+BROKER_URL = 'amqp://kungreye:123456@localhost:5672/InfoCatcher'  # use RabbitMQ as celery broker
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_TASK_SERIALIZER = 'msgpack'
 CELERY_RESULT_SERIALIZER = 'json'

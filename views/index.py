@@ -47,5 +47,5 @@ def search():
     # At present, only `Post` is searchable.
     query = request.args.get('q', '')
     page = request.args.get('page', default=1, type=int)
-    posts = Item.new_search(query, page)
+    posts = Item.new_search(query, page)    #  `Item.new_search()` returns a pagination object.
     return render_template('search.html', query=query, posts=posts)

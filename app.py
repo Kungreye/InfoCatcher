@@ -44,8 +44,8 @@ def create_app():
     app.security = security
     security.send_mail_task(_send_mail_task)
 
-    app.register_blueprint(index.bp)
-    app.register_blueprint(account.bp)
+    app.register_blueprint(index.bp, url_prefix='/')
+    app.register_blueprint(account.bp, url_prefix='/')
 
     @app.teardown_request   # register a func to be run at the end of each request, regardless of whether there was an exception or not.
     def teardown_request(exception):

@@ -12,7 +12,7 @@ from pickle import UnpicklingError
 from sqlalchemy.ext.serializer import loads, dumps
 
 from corelib.db import rdb
-from corelib.utils import Empty
+from corelib.utils import Empty, empty
 
 
 __formatters = {}
@@ -103,6 +103,9 @@ def cache(key_pattern, expire=None):
                 if r is not None:
                     if not isinstance(r, BUILTIN_TYPES):
                         r = dumps(r)
+                    rdb.set(key, r, expire)
+                else:
+                    r = dumps(empty)
                     rdb.set(key, r, expire)
 
             try:

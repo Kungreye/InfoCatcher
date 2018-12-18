@@ -11,7 +11,7 @@
 
 
 {% block content %}
-    <form action="/search" accept-charset="UTF-8" method="get" lpchecked="1">
+    <form action="/search" accept-charset="UTF-8" method="get" _lpchecked="1">
         <div class="input-group">
             <input type="text" name="q" id="q" value="{{ query }}" class="form-control" placeholder="Search Python">
             <span class="input-group-btn">
@@ -25,5 +25,5 @@
     {% for post in posts.items %}
         {{ macros.card(post) }}
     {% endfor %}
-    {{ macros.render_pagination(posts, 'index.search', q=query }}
+    {{ macros.render_pagination(posts, 'index.search', q=query) }}
 {% endblock %}

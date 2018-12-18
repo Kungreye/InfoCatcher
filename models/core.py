@@ -222,6 +222,6 @@ class PostTag(BaseMixin, db.Model):
         except redis.exceptions.ResponseError:
             rdb.delete(stat_key)
             rdb.incr(stat_key, amount)
-        pages = math.ceil((max(total, 0) or 1)/PER_PAGE)
+        pages = math.ceil((max(total, 0) or 1) / PER_PAGE)
         for p in range(1, pages + 1):
             rdb.delete(MC_KEY_POSTS_BY_TAG % (tag_name, p))

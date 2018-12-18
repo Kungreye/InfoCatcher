@@ -5,7 +5,7 @@
 
 <div class="post detail">
     <div class="btn-group-vertical upvote">
-        <a id="like-button-{{ post.id }}" class="btn btn-default btn-xs like-button {% if is_liked %}liked{% endif %}" rel="nofollow" data-url="post/{{ post.id }}/like" data-original-title="Upvote">
+        <a id="like-button-{{ post.id }}" class="btn btn-default btn-xs like-button {% if is_liked %}liked{% endif %}" rel="nofollow" data-method="post" data-url="post/{{ post.id }}/like" data-original-title="Upvote">
             <i class="iconfont InfoCatcher-like"></i> <span>8</span>
         </a>
         <a id="favourite-button-{{ post.id }}" class="btn btn-default btn-xs collect-button {% if is_collected %}collected{% endif %}" rel="nofollow" data-method="post" data-url="post/{{ post.id }}/collect" data-original-title="Collect">
@@ -66,7 +66,7 @@
         {% if pagination %}
             {%- for page in pagination.iter_pages() %}
             {% if page %}
-                <li class="page-item {% if page == pagination.page %} active{% endif %}">
+                <li class="page-item {% if page == pagination.page %}active{% endif %}">
                     <a class="page-link" href="{{ url_for(endpoint, page=page, **kwargs) }}">{{ page }}</a>
                 </li>
             {% else %}
@@ -90,7 +90,7 @@
 {% macro render_comment(comment) %}
 {% set user = comment.user %}
 <div class="comment media">
-    <a class="media left" href="{{ user.url() }}"><img src="{{ user.avatar_path }}" alt="Thumb"></a>
+    <a class="media-left" href="{{ user.url() }}"><img src="{{ user.avatar_path }}" alt="Thumb"></a>
     <div class="media-body">
         <h4 class="media-heading">{{ user.name }}<small class="date">{{ comment.created_at }}</small></h4>
         <div>{{ comment.content }}</div>
