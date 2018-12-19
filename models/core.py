@@ -192,6 +192,9 @@ class PostTag(BaseMixin, db.Model):
             cls.create(post_id=post_id, tag_id=tag_id)
         db.session.commit()
 
+    # Since `@staticmethod` is ignorant of the base class it is `attached` to, so below methods all need clear arguments.
+    # super(PostTag, target)
+    # Note: `@classmethod` can directly use `super()`
     @staticmethod
     def _flush_insert_event(mapper, connection, target):
         super(PostTag, target)._flush_insert_event(mapper, connection, target)
