@@ -83,7 +83,7 @@ class ActionAPI(MethodView):
         return self._merge(post)
 
     @marshal_with(PostSchema)
-    def delete(self, post_id):
+    def delete(self, post_id):  # `delete` corresponds to method `DELETE`
         post = self._prepare(post_id)
         if self.undo_action != 'del_comment':
             # only `del_comment` needs `comment_id` plus `post_id`
@@ -116,3 +116,26 @@ for name, view_cls in (('like', LikeAPI), ('comment', CommentAPI),
     view = view_cls.as_view(name)
     json_api.add_url_rule(f'/post/<int:post_id>/{name}',
                           view_func=view, methods=['POST', 'DELETE'])
+
+"""
+### Only for test
+
+class PostAPI(MethodView):
+    def get(self, post_id):
+        post = Post.get_or_404(post_id)
+        return {}
+    
+    @marshal_with(PostSchema)
+    def post(self, post_id):
+        data = self.get_data()  # ?
+        return Post.create(**data)
+    
+    @marshal_with(PostSchema)
+    def delete(self, post_id):
+        raise ApiException(errors.not_supported)
+        
+
+post_view = PostAPI.as_view('roles')
+json_api.add_url_rule('/post/<int:post_id>',
+                      view_func=post_view, methods=['GET', 'POST', 'DELETE'])
+"""

@@ -15,7 +15,7 @@ def marshal(data, schema):
     result, errors = schema.dump(data)  # serialize an object to native Python data types according to this Schema's fields.
     if errors:
         for item in errors.items():
-            print('{}:{}'.format(*item))
+            print('{}: {}'.format(*item))
     return result
 
 
