@@ -10,12 +10,12 @@ from corelib.db import PropsItem
 from corelib.utils import cached_hybrid_property
 
 
-class CommentItem(ActionMixin, LikeMixin, db.Model):
+class CommentItem(ActionMixin, db.Model):
     __tablename__ = 'comments'
     user_id = db.Column(db.Integer)
     target_id = db.Column(db.Integer)
     target_kind = db.Column(db.Integer)
-    ref_id = db.Column(db.Integer, default=0)   #
+    ref_id = db.Column(db.Integer, default=0)   # ref_id = 0 if comment on Post, else comment on comment.
     content = PropsItem('content', '')      # this field is stored in key-value db
     kind = K_COMMENT
 
@@ -41,7 +41,7 @@ class CommentMixin(object):
                                      target_kind=self.kind, ref_id=ref_id)
         if ok:
             obj.content = content
-        return True
+        return ok, obj
 
     def del_comment(self, user_id, comment_id):
         comment = CommentItem.get(comment_id)

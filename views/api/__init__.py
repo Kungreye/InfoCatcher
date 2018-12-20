@@ -71,7 +71,7 @@ class ActionAPI(MethodView):
             # only `add_comment` involves `content`
             ok = getattr(post, self.do_action)(request.user_id)
         else:
-            content = request.form.get('content')   # 'content' in comment form of post.html ?
+            content = request.form.get('content')   #  see `post.js`
             ok, comment = getattr(post, self.do_action)(
                 request.user_id, content)
             if ok:

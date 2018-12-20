@@ -37,11 +37,10 @@
         {% else %}
         <form id="comment-form" novalidate="novalidate" class="new_comment" data-url="post/{{ post.id }}/comment" accept-charset="UTF-8" method="post">
             <div class="form-group text required comment-content">
-                <textarea rows="5" class="text required comment-content" id="comment-content">
-                </textarea>
+                <textarea rows="5" class="text required comment-content form-control" id="comment-content"></textarea>
             </div>
             <div class="text-right">
-                <input type="submit" id="comment-submit" name=" commit" value="submit" class="btn btn-default btn-info">
+                <input type="submit" id="comment-submit" name="commit" value="submit" class="btn btn-default btn-info">
             </div>
         </form>
         {% endif %}
