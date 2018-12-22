@@ -2,6 +2,7 @@
     {% set author = post.author %}
     {% set is_liked = post.is_liked_by(request.user_id) %}
     {% set is_collected = post.is_collected_by(request.user_id) %}
+    {% set is_followed = author.is_followed_by(request.user_id) %}
 
 <div class="post detail">
     <div class="btn-group-vertical upvote">
@@ -36,11 +37,11 @@
         </div>
         <div class="info">
             <h5>Author</h5>
-            <a href="/u/200993"><img width="48" alt="{{ author.name }} - InfoCatcher" src="{{ author.avatar_path }}"></a>
+            <a href="{{ author.url() }}"><img width="48" alt="{{ author.name }} - InfoCatcher" src="{{ author.avatar_path }}"></a>
             <h4 class="m-b-xs">{{ author.name }}</h4>
             <p class="bio">{{ author.bio }}</p>
-            <a class="btn btn-info btn-xs follow-200993" data-disable-with="Please wait..." data-remote="true" rel="nofollow" data-method="post" href="{{ author.url() }}/follow">
-                <i class="fa fa-eye"></i> Follow
+            <a class="btn btn-info btn-xs follow-button {% if is_followed %}followed{% endif %}" data-disable-with="Please wait for a moment..." rel="nofollow" data-url="{{ author.url() }}/follow">
+                <i class="fa fa-eye"></i>{% if is_followed %}Already followed{% else %}Follow{% endif %}
             </a>
         </div>
     </div>
@@ -90,10 +91,29 @@
 {% macro render_comment(comment) %}
 {% set user = comment.user %}
 <div class="comment media">
-    <a class="media-left" href="{{ user.url() }}"><img src="{{ user.avatar_path }}" alt="Thumb"></a>
+    <a class="media-left" href="{{ user.url() }}"><img src="{{ user.avatar_path }}" alt="{{ user.name }}"></a>
     <div class="media-body">
         <h4 class="media-heading">{{ user.name }}<small class="date">{{ comment.created_at }}</small></h4>
         <div>{{ comment.content }}</div>
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro render_user(user) %}
+<div class="media" id="follows-{{ user.id }}">
+    <div class="media-left">
+        <a href="{{ user.url() }}"><img width="48" height="48" class="media-object img-circle" alt="{{ user.name }}" src="{{ user.avatar_path }}"></a>
+    </div>
+
+    <div class="media-body">
+        <h4 class="media-heading m-b-xs">
+            <a title="{{ user.name }}" href="{{ user.url() }}">{{ user.name }}</a>
+            <small class="pull-right" id="followers-{{ user.id }}-count">
+                <span>{{ user.n_followers }}</span><span>followers</span>
+            </small>
+        </h4>
+        <div class="bio">{{ user.bio }}</div>
     </div>
 </div>
 {% endmacro %}

@@ -10,6 +10,7 @@ from ext import db
 from config import UPLOAD_FOLDER
 from corelib.utils import generate_id
 from models.mixin import BaseMixin
+from models.contact import Contact, userFollowStats
 
 
 roles_users = db.Table(
@@ -67,6 +68,7 @@ class User(db.Model, UserMixin, BaseMixin):
     avatar_id = db.Column(db.String(20), default='')
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
+    _stats = None
 
     __table_args__ = (
         db.Index('idx_name', name),
@@ -91,6 +93,42 @@ class User(db.Model, UserMixin, BaseMixin):
             UPLOAD_FOLDER, 'avatars', '{}.png'.format(avatar_id))
         img.save(filename)
         self.update_avatar(avatar_id)
+
+    def follow(self, from_id):
+        ok, _ = Contact.create(from_id=from_id, to_id=self.id)
+        if ok:
+            self._stats = None
+        return ok
+
+    def unfollow(self, from_id):
+        contact = Contact.get_follow_item(from_id, self.id)
+        if contact:
+            contact.delete()
+            self._stats = None
+            return True
+        return False
+
+    def is_followed_by(self, user_id):
+        contact = Contact.get_follow_item(user_id, self.id)
+        return bool(contact)
+
+    @property
+    def n_following(self):
+        return self._follow_stats[1]
+
+    @property
+    def n_followers(self):
+        return self._follow_stats[0]
+
+    @property
+    def _follow_stats(self):
+        if self._stats is None:
+            stats = userFollowStats.get(self.id)
+            if not stats:
+                self._stats = 0, 0
+            else:
+                self._stats = stats.follower_count, stats.following_count
+        return self._stats
 
 
 user_datastore = BranSQLAlchemyUserDatastore(db, User, Role)

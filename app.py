@@ -46,8 +46,8 @@ def create_app():
     app.security = security
     security.send_mail_task(_send_mail_task)
 
-    app.register_blueprint(index.bp, url_prefix='/')
-    app.register_blueprint(account.bp, url_prefix='/')
+    app.register_blueprint(index.bp)    # no `url_prefix`
+    app.register_blueprint(account.bp)
 
     app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
         '/api': api

@@ -11,7 +11,7 @@ from corelib.utils import cached_hybrid_property
 
 
 class CommentItem(ActionMixin, db.Model):
-    __tablename__ = 'comments'
+    __tablename__ = 'comment_items'
     user_id = db.Column(db.Integer)
     target_id = db.Column(db.Integer)
     target_kind = db.Column(db.Integer)

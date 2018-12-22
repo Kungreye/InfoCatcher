@@ -3,17 +3,18 @@
 import math
 from datetime import datetime
 
-import redis
-
 from ext import db
 from config import PER_PAGE
 from corelib.mc import cache, rdb
+from models.consts import K_POST
+from models.utils import incr_key
 
 
-#MC_KEY_STATS_N = 'like_n:%s:%s:%s'
 MC_KEY_STATS_N = 'action_n:%s:%s:%s'    # action_type, target_id, target_kind
+MC_KEY_BY_USER_STATS_N = 'action_n_by_user:%s:%s:%s'   # action_type, user_id, target_kind
 MC_KEY_ACTION_ITEMS = 'action_items:%s:%s:%s:%s'    # action_type, target_id, target_kind, page
 MC_KEY_ACTION_ITEM_BY_USER = 'action_item_by_user:%s:%s:%s:%s' # action_type, user_id, target_id, target_kind
+MC_KEY_ACTION_ITEMS_BY_USER = 'action_items_by_user:%s:%s:%s:%s'    # action_type, user_id, target_kind, page
 
 
 class BaseMixin:
@@ -109,6 +110,24 @@ class ActionMixin(BaseMixin):
         return items
 
     @classmethod
+    @cache(MC_KEY_ACTION_ITEMS_BY_USER % ('{cls.action_type}', '{user_id}',
+                                          '{target_kind}', '{page}'))
+    def get_target_ids_by_user(cls, user_id, target_kind=K_POST, page=1):
+        query = cls.query.with_entities(cls.target_id).filter_by(
+            user_id=user_id, target_kind=target_kind)
+        posts = query.paginate(page, PER_PAGE)
+        posts.items = [id for id, in posts.items]
+        del posts.query
+        return posts
+
+    @classmethod
+    @cache(MC_KEY_BY_USER_STATS_N % ('{cls.action_type}', '{user_id}',
+                                     '{target_kind}'))
+    def get_count_by_user(cls, user_id, target_kind=K_POST):
+        return cls.query.filter_by(user_id=user_id,
+                                   target_kind=target_kind).count()
+
+    @classmethod
     def is_action_by(cls, user_id, target_id, target_kind):
         return bool(cls.get_by_target(user_id, target_id, target_kind))
 
@@ -140,11 +159,7 @@ class ActionMixin(BaseMixin):
         target_id = target.target_id
         target_kind = target.target_kind
         stat_key = MC_KEY_STATS_N % (action_type, target_id, target_kind)
-        try:
-            total = rdb.incr(stat_key, amount)
-        except redis.exceptions.ResponseError:
-            rdb.delete(stat_key)
-            total = rdb.incr(stat_key, amount)
+        total = incr_key(stat_key, amount)
         pages = math.ceil((max(total, 0) or 1) / PER_PAGE)
 
         user_id = target.user_id
@@ -153,3 +168,12 @@ class ActionMixin(BaseMixin):
         for p in list(range(1, pages + 1)) + [None]:
             rdb.delete(MC_KEY_ACTION_ITEMS % (action_type, target_id,
                                               target_kind, p))
+
+        # mc by user
+        stat_key = MC_KEY_BY_USER_STATS_N % (action_type, user_id, target_kind)
+        total = incr_key(stat_key, amount)
+        pages = math.ceil((max(total, 0) or 1) / PER_PAGE)
+
+        for p in list(range(1, pages + 1)) + [None]:
+            rdb.delete(MC_KEY_ACTION_ITEMS_BY_USER %(
+                action_type, user_id, target_kind, p))
