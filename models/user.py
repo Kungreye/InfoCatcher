@@ -91,7 +91,7 @@ class User(db.Model, UserMixin, BaseMixin):
         avatar_id = generate_id()
         filename = os.path.join(
             UPLOAD_FOLDER, 'avatars', '{}.png'.format(avatar_id))
-        img.save(filename)
+        img.save(filename)  # method in werkzeug:datastructures
         self.update_avatar(avatar_id)
 
     def follow(self, from_id):
