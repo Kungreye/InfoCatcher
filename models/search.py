@@ -2,13 +2,18 @@
 
 from collections import defaultdict
 
-from elasticsearch_dsl import Document, Integer, Text, Boolean, Q, Keyword
+"""
+The `function_score` query provides several types of score functions:
+    `script_score`, `weight`, `random_score`, `field_value_factor`,
+    `decay_functions: gauss, linear, exp`.
+"""
+from elasticsearch_dsl import Document, Integer, Text, Boolean, Q, Keyword, SF, Date
 from elasticsearch_dsl.connections import connections
 from elasticsearch.helpers import parallel_bulk
 from elasticsearch.exceptions import ConflictError
 from flask_sqlalchemy import Pagination
 
-from models.consts import K_POST
+from models.consts import K_POST, ONE_HOUR
 from models.core import Post
 
 from corelib.mc import rdb, cache
@@ -17,11 +22,24 @@ from config import ES_HOSTS, PER_PAGE
 
 connections.create_connection(hosts=ES_HOSTS)
 
+
 ITEM_MC_KEY = 'core:search:{}:{}'
+POST_IDS_BY_TAG_MC_KEY = 'core:search:post_ids_by_tag:%s:%s:%s:%s'
 SEARCH_FIELDS = ['title^10', 'tags^5', 'content^2']     # different weights for search
 TARGET_MAPPER = {
     K_POST: Post
 }
+
+
+gauss_sf = SF('gauss', created_at={
+    'origin': 'now', 'offset': '7d', 'scale': '10d'
+})
+
+score_sf = SF('script_score', script={
+    'lang': 'painless',
+    'inline': ("doc['n_likes'].value * 2 + doc['n_collects'].value")
+})
+
 
 
 def get_item_data(item):
@@ -48,6 +66,7 @@ def get_item_data(item):
 
 
 class Item(Document):
+    id = Integer()
     title = Text()
     kind = Integer()
     content = Text()
@@ -55,6 +74,7 @@ class Item(Document):
     n_collects = Integer()
     n_comments = Integer()
     can_show = Boolean()
+    created_at = Date()
     tags = Text(fields={'raw': Keyword()})
 
     class Index:
@@ -70,7 +90,12 @@ class Item(Document):
     @classmethod
     @cache(ITEM_MC_KEY.format('{id}', '{kind}'))
     def get(cls, id, kind):
-        return super().get(f'{id}_{kind}')  # ??
+        s = cls.search()
+        s.query = Q('bool', must=[Q('term', id=id),
+                                  Q('term', kind=kind)])
+        rs = s.execute()
+        if rs:
+            return rs.hits[0]
 
     @classmethod
     def clear_mc(cls, id, kind):
@@ -157,3 +182,23 @@ class Item(Document):
                 items.extend(items_)
 
         return Pagination(query, page, per_page, rs.hits.total, items)
+
+    @classmethod
+    @cache(POST_IDS_BY_TAG_MC_KEY % ('{tag}', '{page}', 'order_by',
+                                     '{per_page}'), ONE_HOUR)   # expire=ONE_HOUR
+    def get_post_ids_by_tag(cls, tag, page, order_by=None, per_page=PER_PAGE):
+        s = cls.search()
+        s = s.query(Q('bool', must=Q('term', tags=tag)))
+        s = s.query(Q('bool', must=Q('term', kind=K_POST)))
+        if page < 1:
+            page = 1
+        start = (page - 1) * PER_PAGE
+        s = s.extra(**{'from': start, 'size': per_page})
+        if order_by is not None:
+            if order_by == 'hot':
+                s = s.query(Q('function_score', functions=[gauss_sf, score_sf]))     # 'boost_mode' defaults 'multiply'
+            else:
+                s = s.sort(order_by)
+        rs = s.execute()
+        ids = [obj.id for obj in rs]
+        return Pagination(tag, page, per_page, rs.hits.total, ids)

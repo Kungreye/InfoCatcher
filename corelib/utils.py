@@ -6,6 +6,7 @@ import random
 import struct
 import threading
 import time
+import urllib.parse
 
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -120,3 +121,9 @@ class Empty:
 empty = Empty()
 
 
+def update_url_query(url, params):
+    url_parts = list(urllib.parse.urlparse(url))  # ParseResult(scheme='http', netloc='www.hello.com', path='/tag', params='', query='nani=2', fragment='')
+    query = dict(urllib.parse.parse_qsl(url_parts[4]))   # dict([('nani',2)])
+    query.update(params)
+    url_parts[4] = urllib.parse.urlencode(query)
+    return urllib.parse.urlunparse(url_parts)

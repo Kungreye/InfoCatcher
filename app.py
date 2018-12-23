@@ -7,6 +7,7 @@ from werkzeug.wsgi import DispatcherMiddleware
 
 from corelib.flask import Flask
 from corelib.email import send_mail_task as _send_mail_task
+from corelib.utils import update_url_query
 from ext import security, db, mail
 from forms import ExtendedLoginForm, ExtendedRegisterForm
 
@@ -26,6 +27,7 @@ def _inject_template_global(app):
     app.add_template_global(len)
     app.add_template_global(hasattr)
     app.add_template_global(current_user, 'current_user')
+    app.add_template_global(update_url_query)
 
 
 

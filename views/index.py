@@ -38,8 +38,17 @@ def tag(ident):
         if not tag:
             abort(404)
     page = request.args.get('page', default=1, type=int)
-    posts = PostTag.get_posts_by_tag(ident, page)   # `PostTag.get_posts_by_tag` returns a pagination object, so use `posts.items` in tag.html
-    return render_template('tag.html', tag=tag, ident=ident, posts=posts)   #  `posts` here is pagination object.
+    type = request.args.get('type', default='hot')  # hot/latest
+    if type == 'latest':
+        posts = PostTag.get_posts_by_tag(ident, page)   # paginate
+    elif type == 'hot':
+        posts = Item.get_post_ids_by_tag(ident, page, type)     # via Elasticsearch
+        posts.items = Post.get_multi(posts.items)
+    else:
+        # Unknown type
+        posts = []
+    return render_template('tag.html', tag=tag, ident=ident, posts=posts,
+                           type=type)   #  `posts` here is pagination object.
 
 
 @bp.route('/search')
