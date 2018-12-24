@@ -104,6 +104,7 @@ class userFollowStats(BaseMixin, db.Model):
 
     @classmethod
     def get_or_create(cls, id, **kwargs):
+        # `bug` exists ??? TODO
         st = cls.get(id)
         if not st:
             session = db.create_scoped_session()

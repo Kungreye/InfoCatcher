@@ -95,7 +95,7 @@ class User(db.Model, UserMixin, BaseMixin):
         self.update_avatar(avatar_id)
 
     def follow(self, from_id):
-        ok, _ = Contact.create(from_id=from_id, to_id=self.id)
+        ok, _ = Contact.create(to_id=self.id, from_id=from_id)
         if ok:
             self._stats = None
         return ok
