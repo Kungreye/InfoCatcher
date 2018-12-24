@@ -19,3 +19,6 @@ class AuthorSchema(Schema):
     bio = fields.Str()
     name = fields.Str()
     avatar_path = fields.Str()
+    n_following = fields.Integer()
+    n_followers = fields.Integer()
+    is_followed = fields.Boolean()

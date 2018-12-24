@@ -6,10 +6,10 @@
 
 <div class="post detail">
     <div class="btn-group-vertical upvote">
-        <a id="like-button-{{ post.id }}" class="btn btn-default btn-xs like-button {% if is_liked %}liked{% endif %}" rel="nofollow" data-method="post" data-url="post/{{ post.id }}/like" data-original-title="Upvote">
+        <a id="like-button-{{ post.id }}" class="btn btn-default btn-xs like-button {% if is_liked %}liked{% endif %}" rel="nofollow" data-url="post/{{ post.id }}/like" data-original-title="Upvote">
             <i class="iconfont InfoCatcher-like"></i> <span>{{ post.n_likes }}</span>
         </a>
-        <a id="favourite-button-{{ post.id }}" class="btn btn-default btn-xs collect-button {% if is_collected %}collected{% endif %}" rel="nofollow" data-method="post" data-url="post/{{ post.id }}/collect" data-original-title="Collect">
+        <a id="favourite-button-{{ post.id }}" class="btn btn-default btn-xs collect-button {% if is_collected %}collected{% endif %}" rel="nofollow" data-url="post/{{ post.id }}/collect" data-original-title="Collect">
             <i class="iconfont InfoCatcher-collect"></i> <span>{{ post.n_collects }}</span>
         </a>
     </div>

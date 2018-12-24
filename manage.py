@@ -29,6 +29,7 @@ from models.collect import CollectItem
 from models.like import LikeItem
 from models.user import User, Role, user_datastore
 from models.search import Item
+from models.contact import Contact, userFollowStats
 
 
 @app.cli.command()
@@ -51,7 +52,8 @@ def ishell(ipython_args):
 
     user_ns = app.make_shell_context()
     user_ns.update(dict(db=db, User=User, Role=Role, rdb=rdb, Post=Post,
-                        Tag=Tag, PostTag=PostTag, Item=Item))
+                        Tag=Tag, PostTag=PostTag, Item=Item, Contact=Contact,
+                        userFollowStats=userFollowStats))
     config.TerminalInteractiveShell.banner1 = """Python %s on %s
 IPython: %s
 App: %s%s

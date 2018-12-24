@@ -1,3 +1,7 @@
+import "./css/font.css";
+import "./follow";
+
+
 var $likeBtn = $('.like-button');
 var $isLiked = $likeBtn.hasClass('liked');
 var $collectBtn = $('.collect-button');

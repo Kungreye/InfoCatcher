@@ -5,11 +5,11 @@ from flask.views import MethodView
 
 from ext import db, security
 from models.core import Post
-from models.user import user_datastore
+from models.user import user_datastore, User
 
 from . import errors
 from .exceptions import ApiException
-from .schemas import PostSchema
+from .schemas import PostSchema, AuthorSchema
 from .utils import ApiFlask, ApiResult, marshal_with
 
 
@@ -111,11 +111,44 @@ class CollectAPI(ActionAPI):
     undo_action = 'uncollect'
 
 
+class FollowAPI(MethodView):
+    def _prepare(self, user_id):
+        user = User.get(user_id)
+        if not user:
+            raise ApiException(errors.not_found)
+        return user
+
+    def _merge(self, user):
+        user.is_followed = user.is_followed_by(request.user_id)
+        return user
+
+    @marshal_with(AuthorSchema)
+    def post(self, user_id):    # method `POST`
+        user = self._prepare(user_id)
+        ok = user.follow(request.user_id)   # User.follow(from_id)
+        if not ok:
+            raise ApiException(errors.illegal_state)
+        return self._merge(user)
+
+    @marshal_with(AuthorSchema)
+    def delete(self, user_id):
+        user = self._prepare(user_id)
+        ok = user.unfollow(request.user_id)
+        if not ok:
+            raise ApiException(errors.illegal_state)
+        return self._merge(user)
+
+
 for name, view_cls in (('like', LikeAPI), ('comment', CommentAPI),
                        ('collect', CollectAPI)):
     view = view_cls.as_view(name)
     json_api.add_url_rule(f'/post/<int:post_id>/{name}',
                           view_func=view, methods=['POST', 'DELETE'])
+
+follow_view = FollowAPI.as_view('follow')
+json_api.add_url_rule('/user/<int:user_id>/follow',
+                      view_func=follow_view, methods=['POST', 'DELETE'])
+
 
 """
 ### Only for test

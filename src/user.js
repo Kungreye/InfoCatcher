@@ -1,10 +1,9 @@
-import "./scss/tag.scss";
+import "./scss/user.scss";
 import "./css/font.css";
 
-import "./card";
+import "./follow";
 
-
-$('#tag-tab a').on('click', (event) => {
+$('#user-tab a').on('click', (event) => {
     event.preventDefault();
     let $this = $(event.currentTarget);
     let url = $this.data('url');
