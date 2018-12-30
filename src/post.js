@@ -2,6 +2,7 @@ import "./scss/post.scss";
 import "./css/font.css";
 
 import "./card";    // card.js
+import {SimpleShare} from "./simple-share";
 
 
 var $comments = $('#comments');
@@ -29,4 +30,22 @@ $commentForm.on('submit', (event) => {
         }
     });
     return false;
+});
+
+
+var share = new SimpleShare({
+    url: $('meta[name="url"]').attr('content'),
+    title: $('.social-share-button').data('title'),
+    content: $('meta[name="content"]').attr('content')
+    // pic: ''
+});
+
+$('.share-weibo').on('click', (event) => {
+    event.preventDefault();
+    share.weibo();
+});
+
+$('.weixin-qrcode-dropdown').on('click', (event) => {
+    event.preventDefault();
+    share.weixin();
 });

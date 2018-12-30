@@ -14,7 +14,7 @@ $likeBtn.on('click', (event) => {
 
     $.ajax({
         url: `/api/${url}`,
-        type: $isLiked? 'DELETE' : 'POST',
+        type: $isLiked ? 'DELETE' : 'POST',
         data: {},
         success: function(rs) {
             if (!rs.r) {
@@ -22,6 +22,13 @@ $likeBtn.on('click', (event) => {
                 if ($isLiked != isLiked) {
                     $isLiked = isLiked;
                     $this.toggleClass('liked');
+                    $this.find('span').text(rs.data.n_likes);
+                    if (isLiked) {
+                        $this.find('i').addClass('InfoCatcher-liked').removeClass('InfoCatcher-like');
+                    }
+                    else {
+                        $this.find('i').removeClass('InfoCatcher-liked').addClass('InfoCatcher-like');
+                    }
                 }
             }
             else {
@@ -38,7 +45,7 @@ $collectBtn.on('click', (event) => {
 
     $.ajax({
         url: `/api/${url}`,
-        type: $isCollected? 'DELETE' : 'POST',
+        type: $isCollected ? 'DELETE' : 'POST',
         data: {},
         success: function(rs) {
             if (!rs.r) {
@@ -46,6 +53,12 @@ $collectBtn.on('click', (event) => {
                 if ($isCollected != isCollected) {
                     $isCollected = isCollected;
                     $this.toggleClass('collected');
+                    if (isCollected) {
+                        $this.find('i').addClass('InfoCatcher-collected').removeClass('InfoCatcher-collect');
+                    }
+                    else {
+                        $this.find('i').removeClass('InfoCatcher-collected').addClass('InfoCather-collect');
+                    }
                 }
             }
             else {

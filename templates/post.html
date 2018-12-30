@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 {% import "_macros.html" as macros %}
 
+{% block head %}
+    {{ super() }}
+    <meta name="url" content="{{ request.url }}">
+    <meta name="title" content="{{ post.title }}">
+    <meta name="description" content="{{ post.abstract_content }}">
+    <script src="{{ url_for('static', filename='js/qrcode.min.js') }}"></script>
+{% endblock %}
+
 {% block bottomscript %}
     {{ super() }}
     <script src="{{ url_for('static', filename='dist/post.js') }}"></script>
@@ -10,19 +18,19 @@
 
 {% block content %}
     {% set url = post.url() %}
-    {{ macros.card(post) }}
+    {{ macros.card(post, False) }}
     <div class="post-tags">
         {% for tag in post.tags %}
             <a class="btn btn-default btn-rounded btn-xs" href="{{ tag.url() }}">{{ tag.name }}</a>
         {% endfor %}
     </div>
-    <div class="social-share-button text-center" data-title="不改一行代码定位线上性能问题 {{ url }} 分享自 @{{ post.author.name }}" data-type="text" data-url="{{ url }}">
+    <div class="social-share-button text-center" data-title="{{ post.title }} {{ url }} Shared From @{{ post.author.name }}" data-type="text" data-url="{{ url }}">
         <h5>Share to</h5>
-        <a href="javascript:;" class="btn btn-danger" rel="external nofollow" data-site="github" onclick="return SocialShareButton.share(this);"><i class="fa fa-weibo"></i> GitHub</a>
+        <a class="btn btn-danger share-weibo" rel="external nofollow" data-site="weibo" href="javascript;"><i class="iconfont InfoCatcher-weibo"></i> Weibo</a>
         <span class="dropdown weixin-qrcode-dropdown">
-            <button class="btn btn-success" id="weixin-qrcode" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-weixin"></i> WeCaht</button>
-            <span class="dropdown-menu weixin-qrcode-dropdown-menu" aria-labelledby="weixin-qrcode" data-url="{{ url }}">
-                <span class="weixin-qrcode" aria-labelledby="weixin-qrcode" data-url="{{ url }}"><canvas width="132" height="132"></canvas></span>
+            <button class="btn btn-success" type="button" data-toggle="dropdown"><i class="iconfont InfoCatcher-weixin"></i> Weixin</button>
+            <span class="dropdown-menu weixin-qrcode-dropdown-menu" data-url="{{ url }}">
+                <span id="weixin-qrcode" data-url="{{ url }}"></span>
             </span>
         </span>
     </div>

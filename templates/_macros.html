@@ -1,4 +1,4 @@
-{% macro card(post) %}
+{% macro card(post, show_comment=True) %}
     {% set author = post.author %}
     {% set is_liked = post.is_liked_by(request.user_id) %}
     {% set is_collected = post.is_collected_by(request.user_id) %}
@@ -7,10 +7,10 @@
 <div class="post detail">
     <div class="btn-group-vertical upvote">
         <a id="like-button-{{ post.id }}" class="btn btn-default btn-xs like-button {% if is_liked %}liked{% endif %}" rel="nofollow" data-url="post/{{ post.id }}/like" data-original-title="Upvote">
-            <i class="iconfont InfoCatcher-like"></i> <span>{{ post.n_likes }}</span>
+            <i class="iconfont {% if is_liked %}InfoCatcher-liked{% else %}InfoCatcher-like{% endif %}"></i> <span>{{ post.n_likes }}</span>
         </a>
         <a id="favourite-button-{{ post.id }}" class="btn btn-default btn-xs collect-button {% if is_collected %}collected{% endif %}" rel="nofollow" data-url="post/{{ post.id }}/collect" data-original-title="Collect">
-            <i class="iconfont InfoCatcher-collect"></i> <span>{{ post.n_collects }}</span>
+            <i class="iconfont {% if is_collected %}InfoCatcher-collected{% else %}InfoCatcher-collect{% endif %}"></i>
         </a>
     </div>
 
@@ -23,9 +23,11 @@
         <p class="summary"><a href="{{ post.url() }}">{{ post.abstract_content }}</a></p>
         <div class="meta">
             {{ post.netloc }}
+            {% if show_comment %}
             <span>
-                <i class="iconfont InfoCatcher-comment"></i> 0
+                <i class="iconfont {% if post.n_comments %}InfoCatcher-commented{% else %}InfoCatcher-comment{% endif %}"></i> {{ post.n_comments }}
             </span>
+            {% endif %}
         </div>
     </div>
 
@@ -41,7 +43,7 @@
             <h4 class="m-b-xs">{{ author.name }}</h4>
             <p class="bio">{{ author.bio }}</p>
             <a class="btn btn-info btn-xs follow-button {% if is_followed %}followed{% endif %}" data-disable-with="Please wait for a moment..." rel="nofollow" data-url="{{ author.url() }}/follow">
-                <i class="fa fa-eye"></i>{% if is_followed %}Already followed{% else %}Follow{% endif %}
+                <i class="iconfont InfoCatcher-eye"></i>{% if is_followed %}Already followed{% else %}Follow{% endif %}
             </a>
         </div>
     </div>
