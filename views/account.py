@@ -43,6 +43,10 @@ def settings():
         d = request.form.to_dict()
         d.pop('submit', None)
         form = AttrDict(d)
+        github_id = form.github_id
+        if github_id:
+            form.github_url = f'http://github.com/{github_id}'
+        del form.github_id
         user.update(**form)     #  `update` defined in BaseMixin, which is inherited to User
         if image:
             user.upload_avatar(image)

@@ -1,8 +1,8 @@
 # _*_ coding: utf-8 _*_
 
 import os
-import requests
 
+import requests
 from sqlalchemy import func as alchemyFn
 from flask_security import SQLAlchemyUserDatastore, UserMixin, RoleMixin
 
@@ -55,7 +55,7 @@ class User(db.Model, UserMixin, BaseMixin):
     email = db.Column(db.String(191), default='')
     password = db.Column(db.String(191))
     website = db.Column(db.String(191), default='')
-    github_id = db.Column(db.String(191), default='')
+    github_url = db.Column(db.String(191), default='')
     last_login_at = db.Column(db.DateTime())
     current_login_at = db.Column(db.DateTime())
     last_login_ip = db.Column(db.String(100))
@@ -79,6 +79,10 @@ class User(db.Model, UserMixin, BaseMixin):
         return '/user/{}'.format(self.id)
 
     @property
+    def github_id(self):
+        return self.github_url.split('/')[-1]
+
+    @property
     def avatar_path(self):
         avatar_id = self.avatar_id
         return '' if not avatar_id else '/static/avatars/{}.png'.format(avatar_id)
@@ -91,7 +95,17 @@ class User(db.Model, UserMixin, BaseMixin):
         avatar_id = generate_id()
         filename = os.path.join(
             UPLOAD_FOLDER, 'avatars', '{}.png'.format(avatar_id))
-        img.save(filename)  # method in werkzeug:datastructures
+
+        # `img` is URL
+        if isinstance(img, str) and img.startswith('http'):
+            r = requests.get(img, stream=True)
+            if r.status_code == 200:
+                with open(filename, 'wb') as f:
+                    for chunk in r.iter_content(1024):
+                        f.write(chunk)
+        # `img` is file
+        else:
+            img.save(filename)  # method in werkzeug:datastructures
         self.update_avatar(avatar_id)
 
     def follow(self, from_id):

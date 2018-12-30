@@ -15,7 +15,7 @@
     <img width="80" height="80" class="img-circle" src="{{ user.avatar_path }}" alt="">
     <h4 class="m-b-xs">{{ user.name }}</h4>
 
-    {% if user.github_id %}
+    {% if user.github_url %}
     <p><span>GitHub</span><a target="_blank" href="https://github.com/{{ user.github_id }}"> @{{ user.github_id }}</a></p>
     {% endif %}
 

@@ -35,9 +35,13 @@ from models.contact import Contact, userFollowStats
 @app.cli.command()
 def initdb():
     """Initialize database."""
+    from social_flask_sqlalchemy import models as models_
+    engine = db.get_engine()
+    models_.PSABase.metadata.drop_all(engine)   # PSABase = declarative_base()
     db.session.commit()
     db.drop_all()
     db.create_all()
+    models_.PSABase.metadata.create_all(engine)
     click.echo('Init finished!')
 
 
@@ -65,3 +69,13 @@ Instance: %s""" % (sys.version,
                    app.instance_path)
 
     IPython.start_ipython(argv=ipython_args, user_ns=user_ns, config=config)
+
+
+@app.cli.command()
+@with_appcontext
+def create_social_db():
+    from social_flask_sqlalchemy import models as models_
+    engine = db.get_engine()
+    models_.PSABase.metadata.drop_all(engine)
+    models_.PSABase.metadata.create_all(engine)
+    click.echo('Create social DB finished!')

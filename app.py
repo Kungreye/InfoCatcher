@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # _*_ coding: utf-8 _*_
 
-from flask import render_template
+from flask import render_template, g
 from flask_security import current_user
 from werkzeug.wsgi import DispatcherMiddleware
+from social_flask.routes import social_auth
+from social_flask_sqlalchemy.models import init_social
 
 from corelib.flask import Flask
 from corelib.email import send_mail_task as _send_mail_task
@@ -19,7 +21,7 @@ from views.api import json_api as api
 
 def _inject_processor():
     return dict(isinstance=isinstance, current_user=current_user,
-                getattr=getattr, len=len)
+                getattr=getattr, len=len, user=current_user)    # `user= g.user = current_user`, make current_user available on tempaltes.
 
 
 def _inject_template_global(app):
@@ -37,6 +39,7 @@ def create_app():
     app.config.from_object(config)
     db.init_app(app)
     mail.init_app(app)
+    init_social(app, db.session)
 
     app.context_processor(_inject_processor)    # register a template context processor function.
     _inject_template_global(app)
@@ -50,6 +53,7 @@ def create_app():
 
     app.register_blueprint(index.bp)    # no `url_prefix`
     app.register_blueprint(account.bp)
+    app.register_blueprint(social_auth)
 
     app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
         '/api': api
@@ -70,3 +74,8 @@ app = create_app()
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
+
+
+@app.before_request
+def global_user():
+    g.user = current_user
