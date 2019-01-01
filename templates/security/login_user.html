@@ -1,6 +1,6 @@
 {% extends "security/base.html" %}
-{% from "security/_macros.html" import render_field_with_errors, render_field, render_submit %}
-{% include "security/_messages.html" %}
+{% from "security/_macros.html" import render_field_with_errors, render_submit %}
+
 
 {% block title %}Login{% endblock %}
 
@@ -17,7 +17,7 @@
     </form>
     <br>
     <div class="text-center">
-        <a class="btn btn-default" href="/login/github"><i class="fa fa-github"></i> GitHub</a>
+        <a class="btn btn-default" href="/login/github"><i class="iconfont InfoCatcher-github"></i> GitHub</a>
     </div>
     <br>
     <div class="menu">

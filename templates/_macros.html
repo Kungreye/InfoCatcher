@@ -9,7 +9,7 @@
         <a id="like-button-{{ post.id }}" class="btn btn-default btn-xs like-button {% if is_liked %}liked{% endif %}" rel="nofollow" data-url="post/{{ post.id }}/like" data-original-title="Upvote">
             <i class="iconfont {% if is_liked %}InfoCatcher-liked{% else %}InfoCatcher-like{% endif %}"></i> <span>{{ post.n_likes }}</span>
         </a>
-        <a id="favourite-button-{{ post.id }}" class="btn btn-default btn-xs collect-button {% if is_collected %}collected{% endif %}" rel="nofollow" data-url="post/{{ post.id }}/collect" data-original-title="Collect">
+        <a id="collect-button-{{ post.id }}" class="btn btn-default btn-xs collect-button {% if is_collected %}collected{% endif %}" rel="nofollow" data-url="post/{{ post.id }}/collect" data-original-title="Collect">
             <i class="iconfont {% if is_collected %}InfoCatcher-collected{% else %}InfoCatcher-collect{% endif %}"></i>
         </a>
     </div>

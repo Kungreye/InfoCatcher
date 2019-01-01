@@ -3,14 +3,14 @@
 
 {% block bottomscript %}
     {{ super() }}
-    <script src="{{ url_for('static', filename='dist/index.js' }}"></script>
+    <script src="{{ url_for('static', filename='dist/index.js') }}"></script>
 {% endblock %}
 
 
 {% block content %}
     {% for post in posts.items %}
-    {{ macros.card(post) %}
+    {{ macros.card(post) }}
     {% endfor %}
 
-    {% macros.render_pagination(posts, 'index.index') %}
+    {{ macros.render_pagination(posts, 'index.index') }}
 {% endblock %}

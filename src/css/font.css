@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'iconfont';  /* project id 951678 */
-  src: url('//at.alicdn.com/t/font_951678_w05rqm1wo48.eot');
-  src: url('//at.alicdn.com/t/font_951678_w05rqm1wo48.eot?#iefix') format('embedded-opentype'),
-  url('//at.alicdn.com/t/font_951678_w05rqm1wo48.woff') format('woff'),
-  url('//at.alicdn.com/t/font_951678_w05rqm1wo48.ttf') format('truetype'),
-  url('//at.alicdn.com/t/font_951678_w05rqm1wo48.svg#iconfont') format('svg');
+  src: url('//at.alicdn.com/t/font_951678_s9bqv70224.eot');
+  src: url('//at.alicdn.com/t/font_951678_s9bqv70224.eot?#iefix') format('embedded-opentype'),
+  url('//at.alicdn.com/t/font_951678_s9bqv70224.woff') format('woff'),
+  url('//at.alicdn.com/t/font_951678_s9bqv70224.ttf') format('truetype'),
+  url('//at.alicdn.com/t/font_951678_s9bqv70224.svg#iconfont') format('svg');
 }
 
 .iconfont {
@@ -32,5 +32,7 @@
 .InfoCatcher-weixin:before { content: "\e62f"; }
 
 .InfoCatcher-weibo:before { content: "\e62e"; }
+
+.InfoCatcher-github:before { content: "\e601"; }
 
 .InfoCatcher-eye:before { content: "\e6ce"; }

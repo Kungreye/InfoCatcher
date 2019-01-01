@@ -57,7 +57,7 @@ $collectBtn.on('click', (event) => {
                         $this.find('i').addClass('InfoCatcher-collected').removeClass('InfoCatcher-collect');
                     }
                     else {
-                        $this.find('i').removeClass('InfoCatcher-collected').addClass('InfoCather-collect');
+                        $this.find('i').removeClass('InfoCatcher-collected').addClass('InfoCatcher-collect');
                     }
                 }
             }

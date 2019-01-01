@@ -25,6 +25,7 @@ from corelib.utils import is_numeric, cached_hybrid_property, trunc_utf8
 MC_KEY_ALL_TAGS = 'core:all_tags'
 MC_KEY_POSTS_BY_TAG = 'core:posts_by_tags:%s:%s'
 MC_KEY_POST_STATS_BY_TAG = 'core:count_by_tags:%s'
+MC_KEY_POST_TAGS = 'core:post:%s:tags'
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -40,6 +41,7 @@ class Post(BaseMixin, CommentMixin, LikeMixin, CollectMixin, db.Model):
 
     __table_args__ = (
         db.Index('idx_title', title),
+        db.Index('idx_authorId', author_id)
     )
 
     def url(self):
@@ -56,7 +58,7 @@ class Post(BaseMixin, CommentMixin, LikeMixin, CollectMixin, db.Model):
         return cls.cache.filter(title=identifier).first()
 
     @property
-    # TODO cache
+    @cache(MC_KEY_POST_TAGS % ('{self.id}'))
     def tags(self):
         at_ids = PostTag.query.with_entities(
             PostTag.tag_id).filter(
@@ -80,7 +82,12 @@ class Post(BaseMixin, CommentMixin, LikeMixin, CollectMixin, db.Model):
         tags = kwargs.pop('tags', [])
         created, obj = super(Post, cls).create_or_update(**kwargs)
         if tags:
-            PostTag.update_multi(obj.id, tags)
+            PostTag.update_multi(obj.id, tags, [])
+
+        if created:
+            from handler.tasks import feed_post, reindex
+            reindex.delay(obj.id, obj.kind, op_type='create')
+            feed_post.delay(obj.id)
         return created, obj
 
     def delete(self):
@@ -89,9 +96,17 @@ class Post(BaseMixin, CommentMixin, LikeMixin, CollectMixin, db.Model):
         for pt in PostTag.query.filter_by(post_id=id):
             pt.delete()
 
+        from handler.tasks import remove_post_from_feed
+        remove_post_from_feed.delay(self.id, self.author_id)
+
     @cached_hybrid_property
     def netloc(self):
         return '{0.scheme}://{0.netloc}'.format(urlparse(self.orig_url))
+
+    @staticmethod
+    def _flush_insert_event(mapper, connection, target):
+        target._flush_event(mapper, connection, target)
+        target.__flush_insert_event__(target)
 
 
 class Tag(BaseMixin, db.Model):
@@ -165,8 +180,9 @@ class PostTag(BaseMixin, db.Model):
         return query.count()
 
     @classmethod
-    def update_multi(cls, post_id, tags):
-        origin_tags = Post.get(post_id).tags
+    def update_multi(cls, post_id, tags, origin_tags=None):
+        if origin_tags is None:
+            origin_tags = Post.get(post_id).tags
         need_add = set()
         need_del = set()
         for tag in tags:
