@@ -4,8 +4,10 @@ import os
 
 from flask import render_template, send_from_directory, abort, request
 from flask.blueprints import Blueprint
+from flask_security import login_required
 
 from models.core import Post, Tag, PostTag
+from models.feed import get_user_feed
 from models.search import Item
 from config import UPLOAD_FOLDER
 
@@ -14,8 +16,11 @@ bp = Blueprint('index', __name__)
 
 
 @bp.route('/')
+@login_required
 def index():
-    return render_template('index.html')
+    page = request.args.get('page', default=1, type=int)
+    posts = get_user_feed(request.user_id, page)    # `posts` is pagination object
+    return render_template('index.html', posts=posts, page=page)
 
 
 @bp.route('/post/<id>/')

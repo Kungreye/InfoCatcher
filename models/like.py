@@ -1,7 +1,7 @@
 # _*_ coding: utf-8 _*_
 
 from ext import db
-
+from models.consts import K_POST, HOT_THRESHOLD
 from models.mixin import ActionMixin
 
 
@@ -18,13 +18,16 @@ class LikeItem(ActionMixin, db.Model):
     )
 
 
-class LikeMixin(object):
+class LikeMixin:
     def like(self, user_id):
         item = LikeItem.get_by_target(user_id, self.id, self.kind)
         if item:
             return False
         ok, _ = LikeItem.create(user_id=user_id, target_id=self.id,
                                 target_kind=self.kind)
+        if ok and self.n_likes > HOT_THRESHOLD and self.kind == K_POST:
+            from handler.tasks import add_to_activity_feed
+            add_to_activity_feed.delay(self.target_id)
         return ok
 
     def unlike(self, user_id):

@@ -32,11 +32,16 @@ class Contact(BaseMixin, db.Model):
     def create(cls, **kwargs):
         ok, obj = super().create(**kwargs)
         cls.clear_mc(obj, 1)    # amount = 1
+        if ok:
+            from handler.tasks import feed_to_followers
+            feed_to_followers.delay(obj.from_id, obj.to_id)
         return ok, obj
 
     def delete(self):
         super().delete()
         self.clear_mc(self, -1)
+        from handler.tasks import remove_user_posts_from_feed
+        remove_user_posts_from_feed.delay(self.from_id, self.to_id)
 
     @classmethod
     @cache(MC_KEY_FOLLOWERS % ('{user_id}', '{page}'))

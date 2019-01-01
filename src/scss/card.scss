@@ -37,6 +37,11 @@
       margin-right: 10px;
       vertical-align: top;
       color: #999;
+      span {
+        display: inline-block;
+        margin-left: 10px;
+        font-size: 14px;
+      }
   }
   .user-info {
     width: 100px;

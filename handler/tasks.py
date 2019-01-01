@@ -3,11 +3,19 @@
 from celery.utils.log import get_task_logger
 
 from app import app as _app
-
 from handler.celery import app  # celery instance
-from models.search import Item, TARGET_MAPPER
-from models.consts import K_POST
+
 from corelib.utils import AttrDict
+from models.consts import K_POST
+from models.core import Post
+from models.search import Item, TARGET_MAPPER
+from models.feed import (
+    ActivityFeed,
+    feed_to_followers as _feed_to_followers,
+    feed_post as _feed_post,
+    remove_post_from_feed as _remove_post_from_feed,
+    remove_user_posts_from_feed as _remove_user_posts_from_feed,
+)
 
 
 logger = get_task_logger(__name__)
@@ -53,3 +61,36 @@ def reindex(id, kind, op_type):
         logger.info(f'Reindex Finished: {target.__class__.__name__}<id={id}>')
     else:
         logger.info(f'Reindex Failed: {target.__class__.__name__}<id={id}>')
+
+
+@app.task(base=RequestContextTask)
+def feed_to_followers(visit_id, uid):
+    _feed_to_followers(visit_id, uid)
+    logger.info(f'Feed_to_followers visit_id:{visit_id}, uid:{uid}')
+
+
+@app.task(base=RequestContextTask)
+def feed_post(id):
+    post = Post.get(id)
+    _feed_post(post)
+    logger.info(f'Feed_post {id}')
+
+
+@app.task(base=RequestContextTask)
+def remove_post_from_feed(post_id, author_id):
+    _remove_post_from_feed(post_id, author_id)
+    logger.info(f'Remove_post_from_feed post_id:{post_id}, author_id:{author_id}')
+
+
+@app.task(base=RequestContextTask)
+def remove_user_posts_from_feed(visit_id, uid):
+    _remove_user_posts_from_feed(visit_id, uid)
+    logger.info(f'Remove_user_posts_from_feed visit_id:{visit_id} uid:{uid}')
+
+
+@app.task(base=RequestContextTask)
+def add_to_activity_feed(post_id):
+    post = Post.get(post_id)
+
+    ActivityFeed.add(int(post.created_at.strftime('%s')), post_id)
+    logger.info(f'Add_to_activity_feed post_id:{post_id}')

@@ -1,5 +1,10 @@
 @import "./card";
 
+html {
+    position: relative;
+    min-height: 100%;
+}
+
 .btn {
     font-size: 14px;
     font-weight: 500;
@@ -97,6 +102,11 @@ footer {
     background: #29afec;
     color: #FFF;
     vertical-align: baseline;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 100px;
+    overflow: hidden;
 }
 
 @media (min-width: 1024px) {
@@ -252,4 +262,15 @@ header.navbar .nav>li>a.navbar-profile img {
 
 .nav-tabs .nav-item {
     cursor: pointer;
+}
+
+.btn-danger:hover, .btn-danger:focus, .btn-danger:active,
+.btn-danger.active, .open .dropdown-toggle.btn-danger {
+    color: #ffffff !important;
+    background-color: #ee3939;
+    border-color: #ed2a2a;
+}
+
+.btn-danger.focus, .btn-danger:focus {
+    box-shadow: unset;
 }
