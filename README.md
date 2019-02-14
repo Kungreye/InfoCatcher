@@ -121,7 +121,8 @@ Note: to enable social-auth, remember to add <i>SOCIAL_AUTH_GITHUB_KEY</i> and <
 
 - Posts by tag <i>python</i>
 <img src="https://github.com/Kungreye/InfoCatcher/blob/master/demo/posts_by_tag.png">
----
+<hr>
+
 - Post
 <img src="https://github.com/Kungreye/InfoCatcher/blob/master/demo/post.png">
 <hr>
@@ -141,4 +142,3 @@ Note: to enable social-auth, remember to add <i>SOCIAL_AUTH_GITHUB_KEY</i> and <
 
 - Follow
 <img src="https://github.com/Kungreye/InfoCatcher/blob/master/demo/follow.png">
----
