@@ -124,21 +124,21 @@ Note: to enable social-auth, remember to add <i>SOCIAL_AUTH_GITHUB_KEY</i> and <
 ---
 - Post
 <img src="https://github.com/Kungreye/InfoCatcher/blob/master/demo/post.png">
----
+<hr>
+
 - Upvote, collect, comment
 <img src="https://github.com/Kungreye/InfoCatcher/blob/master/demo/upvote_collect_comment.png">
----
-- Share to Weixin
+<hr>
+
+
+- Share
 <img src="https://github.com/Kungreye/InfoCatcher/blob/master/demo/share_weixin.png">
----
-- Share to Weibo
-<img src="https://github.com/Kungreye/InfoCatcher/blob/master/demo/share_weibo.png">
----
+<hr>
+
 - Setting
 <img src="https://github.com/Kungreye/InfoCatcher/blob/master/demo/setting.png">
----
+<hr>
+
 - Follow
-<img src="https://github.com/Kungreye/InfoCatcher/blob/master/demo/following.png">
-<h>
 <img src="https://github.com/Kungreye/InfoCatcher/blob/master/demo/follow.png">
 ---
