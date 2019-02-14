@@ -22,8 +22,8 @@
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="824">
-                <caret line="119" column="7" selection-start-line="119" selection-start-column="7" selection-end-line="119" selection-end-column="7" />
+              <first_editor relative-caret-position="870">
+                <caret line="142" lean-forward="true" selection-start-line="142" selection-end-line="142" />
               </first_editor>
               <second_editor />
             </state>
@@ -34,7 +34,7 @@
         <entry file="file://$PROJECT_DIR$/crawling.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="781">
-              <caret line="87" lean-forward="true" selection-start-line="87" selection-end-line="87" />
+              <caret line="87" selection-start-line="87" selection-end-line="87" />
             </state>
           </provider>
         </entry>
@@ -44,7 +44,7 @@
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
               <first_editor relative-caret-position="309">
-                <caret line="113" column="2" lean-forward="true" selection-start-line="113" selection-start-column="2" selection-end-line="113" selection-end-column="2" />
+                <caret line="113" column="2" selection-start-line="113" selection-start-column="2" selection-end-line="113" selection-end-column="2" />
               </first_editor>
               <second_editor />
             </state>
@@ -55,7 +55,7 @@
         <entry file="file://$PROJECT_DIR$/config.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="873">
-              <caret line="112" lean-forward="true" selection-start-line="112" selection-end-line="112" />
+              <caret line="112" selection-start-line="112" selection-end-line="112" />
             </state>
           </provider>
         </entry>
@@ -553,7 +553,7 @@
     <entry file="file://$PROJECT_DIR$/config.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="873">
-          <caret line="112" lean-forward="true" selection-start-line="112" selection-end-line="112" />
+          <caret line="112" selection-start-line="112" selection-end-line="112" />
         </state>
       </provider>
     </entry>
@@ -580,7 +580,7 @@
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="309">
-            <caret line="113" column="2" lean-forward="true" selection-start-line="113" selection-start-column="2" selection-end-line="113" selection-end-column="2" />
+            <caret line="113" column="2" selection-start-line="113" selection-start-column="2" selection-end-line="113" selection-end-column="2" />
           </first_editor>
           <second_editor />
         </state>
@@ -592,7 +592,7 @@
     <entry file="file://$PROJECT_DIR$/crawling.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="781">
-          <caret line="87" lean-forward="true" selection-start-line="87" selection-end-line="87" />
+          <caret line="87" selection-start-line="87" selection-end-line="87" />
         </state>
       </provider>
     </entry>
@@ -613,8 +613,8 @@
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="824">
-            <caret line="119" column="7" selection-start-line="119" selection-start-column="7" selection-end-line="119" selection-end-column="7" />
+          <first_editor relative-caret-position="870">
+            <caret line="142" lean-forward="true" selection-start-line="142" selection-end-line="142" />
           </first_editor>
           <second_editor />
         </state>
