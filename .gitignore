@@ -113,3 +113,6 @@ specs.md
 
 # PIN
 PIN/
+
+# redis rdb
+*.rdb
