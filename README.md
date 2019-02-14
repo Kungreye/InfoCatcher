@@ -90,7 +90,7 @@ Note: to enable social-auth, remember to add <i>SOCIAL_AUTH_GITHUB_KEY</i> and <
 
 - Start app
 
-<i>Note</i>: Elasticsearch & Redis should be started in advance.
+<i>Note</i>: Elasticsearch, Redis and RabbitMQ should be started in advance.
 
         export FLASK_APP=app.py
         
@@ -116,21 +116,7 @@ Note: to enable social-auth, remember to add <i>SOCIAL_AUTH_GITHUB_KEY</i> and <
 - After the crawling is completed, start app again, and login to check the new content.
 
 
-
-
-        
-
-
-        
-    
-        
-
-        
-
- 
- 
-
-
-
+---
+## Demo
 
 
