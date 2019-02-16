@@ -4,7 +4,7 @@ InfoCatcher is an app for post display. It is built with Flask.
 
 
 ## Features
-1. Register / Login & Logout
+1. Register / Login & Logout + OAuth
 2. Homepage Post
 3. Tags
 4. Search
